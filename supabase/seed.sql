@@ -1,0 +1,2 @@
+-- Seed inicial de Horas Claras.
+-- No incluir datos reales ni secretos en este archivo.
