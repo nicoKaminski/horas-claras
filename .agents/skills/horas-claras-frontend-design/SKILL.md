@@ -57,7 +57,7 @@ Favor:
 Before changing UI, inspect:
 
 1. `AGENTS.md`
-2. `docs/agent/frontend-design.md`
+2. `agent/frontend-design.md`
 3. `package.json`
 4. `src/app/globals.css`
 5. CSS Module files related to the target screen

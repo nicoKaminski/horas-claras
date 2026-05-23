@@ -51,8 +51,8 @@ Lectura previa obligatoria:
 2. Leé `package.json`.
 3. Leé los archivos directamente relacionados con esta tarea:
    - [LISTAR ARCHIVOS/CARPETAS]
-4. Si tocás UI, leé `docs/agent/frontend-design.md`.
-5. Si tocás reglas de agente/documentación, leé `docs/agent/rules.md`.
+4. Si tocás UI, leé `agent/frontend-design.md`.
+5. Si tocás reglas de agente/documentación, leé `agent/rules.md`.
 
 Reglas técnicas:
 - TypeScript estricto.
@@ -180,7 +180,7 @@ Objetivo:
 
 Lectura previa:
 - `AGENTS.md`
-- `docs/agent/frontend-design.md`
+- `agent/frontend-design.md`
 - `package.json`
 - Archivos CSS Modules y componentes relacionados con la vista.
 
@@ -219,7 +219,7 @@ Objetivo:
 
 Lectura previa:
 - `AGENTS.md`
-- `docs/agent/rules.md`
+- `agent/rules.md`
 - `supabase/migrations`
 - `supabase/seed.sql`
 - archivos server/client relacionados si existen.

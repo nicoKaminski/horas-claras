@@ -21,15 +21,15 @@ Antes de editar cualquier archivo, el agente debe leer:
 2. `package.json`
 3. La estructura actual del repo
 4. Solo los archivos relacionados con la tarea
-5. Si aplica, los documentos de `docs/agent/`
+5. Si aplica, los documentos de `agent/`
 
 Documentos auxiliares:
 
 ```txt
-docs/agent/rules.md
-docs/agent/project-state.md
-docs/agent/prompt-contract.md
-docs/agent/frontend-design.md
+agent/rules.md
+agent/project-state.md
+agent/prompt-contract.md
+agent/frontend-design.md
 ```
 
 Skill recomendado para UI:
@@ -105,7 +105,7 @@ horas-claras/
 │  ├─ migrations/
 │  └─ seed.sql
 ├─ docs/
-│  └─ agent/
+├─ agent/
 ├─ .agents/
 │  └─ skills/
 ├─ .env.example
@@ -136,7 +136,7 @@ supabase/migrations
 supabase/seed.sql
   Datos iniciales o instrucciones de seed sin secretos ni datos reales sensibles.
 
-docs/agent
+agent
   Reglas extendidas, estado del proyecto, contrato de prompts y guía visual.
 
 .agents/skills
@@ -269,7 +269,7 @@ Prohibido:
 - Mantener una estética simple, limpia, responsive y profesional.
 - Priorizar usabilidad sobre decoración.
 - No cambiar colores, layout o patrones visuales sin necesidad.
-- Si una tarea requiere tocar UI, consultar `docs/agent/frontend-design.md`.
+- Si una tarea requiere tocar UI, consultar `agent/frontend-design.md`.
 
 ---
 
@@ -395,7 +395,7 @@ docs/setup-local.md
 docs/supabase.md
 docs/deploy-vercel.md
 docs/decisiones.md
-docs/agent/project-state.md
+agent/project-state.md
 ```
 
 No documentar por documentar en cada cambio chico, salvo que el developer lo pida.
@@ -428,7 +428,7 @@ No ocultar fallos.
 
 Si algo no se pudo verificar, decirlo explícitamente.
 
-Usar también `docs/agent/prompt-contract.md` como contrato de cierre.
+Usar también `agent/prompt-contract.md` como contrato de cierre.
 
 ---
 
@@ -438,7 +438,7 @@ Si hay conflicto entre instrucciones:
 
 1. Instrucciones explícitas del developer en la tarea actual.
 2. Este `AGENTS.md`.
-3. Documentos de `docs/agent/`.
+3. Documentos de `agent/`.
 4. Documentación del proyecto.
 5. Patrones existentes del repo.
 6. Criterio del agente.

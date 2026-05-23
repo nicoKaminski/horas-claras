@@ -146,7 +146,7 @@ Si la tarea toca frontend, el agente debe:
 - cuidar accesibilidad básica;
 - no introducir estilos inline salvo caso mínimo justificado;
 - no hacer rediseños implícitos;
-- consultar `docs/agent/frontend-design.md`.
+- consultar `agent/frontend-design.md`.
 
 Si no hay diseño externo, debe basarse en:
 
@@ -262,7 +262,7 @@ Antes de afirmar que algo existe, verificar:
 - respuestas de comandos reportadas por el developer;
 - evidencias concretas.
 
-Nunca tratar `docs/agent/project-state.md` como verdad absoluta.
+Nunca tratar `agent/project-state.md` como verdad absoluta.
 
 ---
 

@@ -5,7 +5,7 @@ Este documento define criterios visuales y de UX para Horas Claras.
 Debe usarse junto con:
 
 - `AGENTS.md`
-- `docs/agent/rules.md`
+- `agent/rules.md`
 - `.agents/skills/horas-claras-frontend-design/SKILL.md`
 
 ---
