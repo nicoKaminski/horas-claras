@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getPendingJiraWorkLogs } from "@/backend/work-logs/get-pending-jira-work-logs";
 import MarkJiraLoadedButton from "@/frontend/features/work-logs/components/MarkJiraLoadedButton";
+import DeleteWorkLogButton from "@/frontend/features/work-logs/components/DeleteWorkLogButton";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -122,6 +123,18 @@ export default async function PendientesJiraPage() {
                           </span>
                         )}
                       </div>
+                      {profileResult.profile.role === "admin" && (
+                        <>
+                          <div className={styles.metaItem}>
+                            <Link href={`/registros/${log.id}/editar`} className={styles.buttonEdit}>
+                              Editar
+                            </Link>
+                          </div>
+                          <div className={styles.metaItem}>
+                            <DeleteWorkLogButton logId={log.id} />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </article>
                 ))}

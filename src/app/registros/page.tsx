@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getWorkLogs } from "@/backend/work-logs/get-work-logs";
 import MarkJiraLoadedButton from "@/frontend/features/work-logs/components/MarkJiraLoadedButton";
+import DeleteWorkLogButton from "@/frontend/features/work-logs/components/DeleteWorkLogButton";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -128,6 +129,21 @@ export default async function RegistrosPage() {
                           </>
                         )}
                       </div>
+                      {(profileResult.profile.role === "admin" ||
+                        (profileResult.profile.role === "user" &&
+                          log.user_id === profileResult.profile.id &&
+                          !log.jira_loaded)) && (
+                        <>
+                          <div className={styles.metaItem}>
+                            <Link href={`/registros/${log.id}/editar`} className={styles.buttonEdit}>
+                              Editar
+                            </Link>
+                          </div>
+                          <div className={styles.metaItem}>
+                            <DeleteWorkLogButton logId={log.id} />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </article>
                 ))}

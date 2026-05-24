@@ -79,6 +79,16 @@
   font-weight: 500;
 }
 
+.warningMessage {
+  padding: 12px 16px;
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 6px;
+  color: #b45309;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .actions {
   display: flex;
   flex-direction: column-reverse;

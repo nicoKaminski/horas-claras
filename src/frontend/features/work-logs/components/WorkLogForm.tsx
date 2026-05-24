@@ -2,33 +2,74 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { createWorkLogAction } from "@/backend/work-logs/actions";
+import { createWorkLogAction, updateWorkLogAction } from "@/backend/work-logs/actions";
 import { Profile } from "@/shared/types/profile";
 import styles from "./WorkLogForm.module.css";
 
 interface WorkLogFormProps {
   currentProfile: Profile;
+  mode?: "create" | "edit";
+  initialValues?: {
+    date?: string;
+    start_time?: string;
+    end_time?: string | null;
+    task_title?: string;
+    description?: string;
+  };
+  workLogId?: string;
+  isLoadedInJira?: boolean;
 }
 
-export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
+const formatTimeForInput = (timeStr?: string | null) => {
+  if (!timeStr) return "";
+  const parts = timeStr.trim().split(":");
+  if (parts.length >= 2) {
+    return `${parts[0]}:${parts[1]}`;
+  }
+  return timeStr;
+};
+
+export default function WorkLogForm({
+  currentProfile,
+  mode = "create",
+  initialValues = {},
+  workLogId,
+  isLoadedInJira = false,
+}: WorkLogFormProps) {
+  const isEdit = mode === "edit";
+  const actionToUse = isEdit ? updateWorkLogAction : createWorkLogAction;
+
   const [state, formAction, isPending] = useActionState(
-    createWorkLogAction,
+    actionToUse,
     {}
   );
 
   const isAdmin = currentProfile.role === "admin";
 
+  // Resolver valores por defecto priorizando la respuesta del servidor en caso de error
+  const defaultDate = state.values?.date ?? initialValues.date ?? "";
+  const defaultStartTime = state.values?.start_time ?? formatTimeForInput(initialValues.start_time);
+  const defaultEndTime = state.values?.end_time ?? formatTimeForInput(initialValues.end_time);
+  const defaultTaskTitle = state.values?.task_title ?? initialValues.task_title ?? "";
+  const defaultDescription = state.values?.description ?? initialValues.description ?? "";
+  const defaultDevName = state.values?.developer_name ?? currentProfile.developer_name ?? "";
+
   return (
     <form action={formAction} className={styles.form}>
+      {/* Input oculto para el ID del registro en modo edición */}
+      {isEdit && workLogId && (
+        <input type="hidden" name="id" value={workLogId} />
+      )}
+
       {/* 1. Selección de desarrollador (Admin) o indicador estático (User) */}
-      {isAdmin ? (
+      {isAdmin && !isEdit ? (
         <div className={styles.field}>
           <label htmlFor="developer_name">Desarrollador</label>
           <select
             id="developer_name"
             name="developer_name"
             className={styles.select}
-            defaultValue={currentProfile.developer_name}
+            defaultValue={defaultDevName}
             disabled={isPending}
           >
             <option value="dev">dev</option>
@@ -63,11 +104,13 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
         <div className={styles.field}>
           <label htmlFor="date">Fecha</label>
           <input
-            type="date"
+            type="text"
             id="date"
             name="date"
             className={styles.input}
+            placeholder="06/05/2026 o 2026-05-06"
             required
+            defaultValue={defaultDate}
             disabled={isPending}
           />
           {state.errors?.date && (
@@ -80,11 +123,14 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
         <div className={styles.field}>
           <label htmlFor="start_time">Hora Inicio</label>
           <input
-            type="time"
+            type="text"
+            inputMode="numeric"
             id="start_time"
             name="start_time"
             className={styles.input}
+            placeholder="08:00 o 8"
             required
+            defaultValue={defaultStartTime}
             disabled={isPending}
           />
           {state.errors?.start_time && (
@@ -97,11 +143,14 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
         <div className={styles.field}>
           <label htmlFor="end_time">Hora Fin</label>
           <input
-            type="time"
+            type="text"
+            inputMode="numeric"
             id="end_time"
             name="end_time"
             className={styles.input}
+            placeholder="17:30 o 17"
             required
+            defaultValue={defaultEndTime}
             disabled={isPending}
           />
           {state.errors?.end_time && (
@@ -122,6 +171,7 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
           className={styles.input}
           placeholder="Ej: HC-123 Solucionar bug de login"
           required
+          defaultValue={defaultTaskTitle}
           disabled={isPending}
         />
         {state.errors?.task_title && (
@@ -140,6 +190,7 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
           className={styles.textarea}
           placeholder="Detalle detallado de lo que se realizó..."
           required
+          defaultValue={defaultDescription}
           disabled={isPending}
         />
         {state.errors?.description && (
@@ -149,14 +200,21 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
         )}
       </div>
 
-      {/* 5. Error general de acción */}
+      {/* 5. Advertencia para registros ya cargados en Jira (Admin) */}
+      {isEdit && isLoadedInJira && (
+        <div className={styles.warningMessage} role="alert">
+          Este registro ya estaba cargado en Jira. Si guardás cambios, volverá a quedar pendiente de Jira.
+        </div>
+      )}
+
+      {/* 6. Error general de acción */}
       {state.error && (
         <div className={styles.generalError} role="alert">
           {state.error}
         </div>
       )}
 
-      {/* 6. Acciones */}
+      {/* 7. Acciones */}
       <div className={styles.actions}>
         <Link href="/registros" className={styles.buttonCancel}>
           Cancelar
@@ -166,7 +224,13 @@ export default function WorkLogForm({ currentProfile }: WorkLogFormProps) {
           className={styles.buttonSubmit}
           disabled={isPending}
         >
-          {isPending ? "Registrando..." : "Registrar horas"}
+          {isPending
+            ? isEdit
+              ? "Guardando..."
+              : "Registrando..."
+            : isEdit
+            ? "Guardar cambios"
+            : "Registrar horas"}
         </button>
       </div>
     </form>
