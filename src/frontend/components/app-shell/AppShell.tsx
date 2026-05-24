@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FiClock, FiGrid, FiUser, FiMenu, FiX, FiLogOut } from "react-icons/fi";
 import { logoutAction } from "@/backend/auth/actions";
 import { Profile } from "@/shared/types/profile";
@@ -26,10 +27,13 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
       {/* Mobile Top Bar */}
       <header className={styles.mobileHeader}>
         <div className={styles.logoContainer}>
-          <img
+          <Image
             src="/logoHorasClarasDark.png"
             alt="Horas Claras"
+            width={120}
+            height={32}
             className={styles.logoImg}
+            priority
           />
         </div>
         <button
@@ -46,10 +50,13 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
       <aside className={`${styles.sidebar} ${mobileOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.logoContainer}>
-            <img
+            <Image
               src="/logoHorasClarasDark.png"
               alt="Horas Claras"
+              width={120}
+              height={32}
               className={styles.logoImg}
+              priority
             />
           </div>
           <button type="button" onClick={closeMobile} className={styles.mobileClose} aria-label="Cerrar menú">
