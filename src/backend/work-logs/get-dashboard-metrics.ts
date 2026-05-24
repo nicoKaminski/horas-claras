@@ -199,25 +199,9 @@ export async function getDashboardMetrics(
           breakdown.compa.hasConfiguredRate = false;
         }
 
-        // Calculate general total amount to charge if all active developers have configured rates
-        let adminHasConfiguredRate = true;
-        let adminAmountToCharge = 0;
-
-        if (breakdown.dev.total_hours > 0) {
-          if (breakdown.dev.hasConfiguredRate) {
-            adminAmountToCharge += breakdown.dev.amountToCharge || 0;
-          } else {
-            adminHasConfiguredRate = false;
-          }
-        }
-
-        if (breakdown.compa.total_hours > 0) {
-          if (breakdown.compa.hasConfiguredRate) {
-            adminAmountToCharge += breakdown.compa.amountToCharge || 0;
-          } else {
-            adminHasConfiguredRate = false;
-          }
-        }
+        // Calculate general total amount to charge
+        const adminHasConfiguredRate = !!breakdown.dev.hasConfiguredRate && !!breakdown.compa.hasConfiguredRate;
+        const adminAmountToCharge = (breakdown.dev.amountToCharge || 0) + (breakdown.compa.amountToCharge || 0);
 
         hasConfiguredRate = adminHasConfiguredRate;
         amountToCharge = adminHasConfiguredRate ? Math.round(adminAmountToCharge * 100) / 100 : null;
@@ -235,7 +219,22 @@ export async function getDashboardMetrics(
           hasConfiguredRate = false;
         }
       }
+    } else {
+      // Rates fetch failed or not found - set defaults
+      if (profile.role === "admin" && breakdown) {
+        breakdown.dev.hourlyRate = null;
+        breakdown.dev.amountToCharge = null;
+        breakdown.dev.hasConfiguredRate = false;
+
+        breakdown.compa.hourlyRate = null;
+        breakdown.compa.amountToCharge = null;
+        breakdown.compa.hasConfiguredRate = false;
+      }
+      hourlyRate = null;
+      amountToCharge = null;
+      hasConfiguredRate = false;
     }
+
 
     const metrics: DashboardMetrics = {
       total_hours: totalHours,

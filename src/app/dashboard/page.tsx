@@ -48,8 +48,74 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const currentYear = resolvedParams.year ? Number(resolvedParams.year) : new Date().getFullYear();
 
   const metricsResult = await getDashboardMetrics(currentMonth, currentYear);
+  const metrics = metricsResult.status === "success" ? metricsResult.metrics : null;
+
+  const ratesCard = metrics ? (
+    <div className={`${styles.card} ${styles.fullWidthCard}`}>
+      <h2 className={styles.cardTitle}>Tarifas y Cobro ({metrics.month_name})</h2>
+      <div className={styles.ratesGrid}>
+        {profile.role === "admin" ? (
+          <>
+            <MonthlyRateCard
+              key={`dev-${currentYear}-${currentMonth}`}
+              developerName="dev"
+              hourlyRate={metrics.breakdown?.dev.hourlyRate ?? null}
+              amountToCharge={metrics.breakdown?.dev.amountToCharge ?? null}
+              hasConfiguredRate={metrics.breakdown?.dev.hasConfiguredRate ?? false}
+              totalHours={metrics.breakdown?.dev.total_hours ?? 0}
+              year={currentYear}
+              month={currentMonth}
+              isAdmin={true}
+            />
+            <MonthlyRateCard
+              key={`compa-${currentYear}-${currentMonth}`}
+              developerName="compa"
+              hourlyRate={metrics.breakdown?.compa.hourlyRate ?? null}
+              amountToCharge={metrics.breakdown?.compa.amountToCharge ?? null}
+              hasConfiguredRate={metrics.breakdown?.compa.hasConfiguredRate ?? false}
+              totalHours={metrics.breakdown?.compa.total_hours ?? 0}
+              year={currentYear}
+              month={currentMonth}
+              isAdmin={true}
+            />
+          </>
+        ) : (
+          <MonthlyRateCard
+            key={`${profile.developer_name}-${currentYear}-${currentMonth}`}
+            developerName={profile.developer_name}
+            hourlyRate={metrics.hourlyRate ?? null}
+            amountToCharge={metrics.amountToCharge ?? null}
+            hasConfiguredRate={metrics.hasConfiguredRate ?? false}
+            totalHours={metrics.total_hours}
+            year={currentYear}
+            month={currentMonth}
+            isAdmin={false}
+          />
+        )}
+      </div>
+
+
+      {profile.role === "admin" && (
+        <>
+          {metrics.hasConfiguredRate ? (
+            <div className={styles.totalBanner}>
+              <span className={styles.totalBannerText}>Total a pagar estimado (período):</span>
+              <strong className={styles.totalBannerValue}>
+                {formatCurrency(metrics.amountToCharge)}
+              </strong>
+            </div>
+          ) : (
+            <div className={styles.totalBannerMissing}>
+              <span>Falta configurar tarifas de desarrolladores activos para calcular el total general.</span>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  ) : null;
 
   return (
+
     <AppShell profile={profile} activeItem="dashboard">
       <div className={styles.dashboardContainer}>
         <header className={styles.header}>
@@ -66,10 +132,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         {metricsResult.status === "success" && metricsResult.metrics && (
           <>
             {metricsResult.metrics.total_logs === 0 ? (
-              <div className={styles.emptyMetrics}>
-                <p className={styles.emptyMetricsText}>
-                  No hay registros de horas cargados en este período todavía.
-                </p>
+              <div className={styles.contentGrid}>
+                {ratesCard}
+                <div className={`${styles.emptyMetrics} ${styles.fullWidthCard}`}>
+                  <p className={styles.emptyMetricsText}>
+                    No hay registros de horas cargados en este período todavía.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className={styles.contentGrid}>
@@ -141,63 +210,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 </div>
 
                 {/* Tarifas y Cobro Section */}
-                <div className={`${styles.card} ${styles.fullWidthCard}`}>
-                  <h2 className={styles.cardTitle}>Tarifas y Cobro ({metricsResult.metrics.month_name})</h2>
-                  <div className={styles.ratesGrid}>
-                    {profile.role === "admin" ? (
-                      <>
-                        <MonthlyRateCard
-                          developerName="dev"
-                          hourlyRate={metricsResult.metrics.breakdown?.dev.hourlyRate ?? null}
-                          amountToCharge={metricsResult.metrics.breakdown?.dev.amountToCharge ?? null}
-                          hasConfiguredRate={metricsResult.metrics.breakdown?.dev.hasConfiguredRate ?? false}
-                          totalHours={metricsResult.metrics.breakdown?.dev.total_hours ?? 0}
-                          year={currentYear}
-                          month={currentMonth}
-                          isAdmin={true}
-                        />
-                        <MonthlyRateCard
-                          developerName="compa"
-                          hourlyRate={metricsResult.metrics.breakdown?.compa.hourlyRate ?? null}
-                          amountToCharge={metricsResult.metrics.breakdown?.compa.amountToCharge ?? null}
-                          hasConfiguredRate={metricsResult.metrics.breakdown?.compa.hasConfiguredRate ?? false}
-                          totalHours={metricsResult.metrics.breakdown?.compa.total_hours ?? 0}
-                          year={currentYear}
-                          month={currentMonth}
-                          isAdmin={true}
-                        />
-                      </>
-                    ) : (
-                      <MonthlyRateCard
-                        developerName={profile.developer_name}
-                        hourlyRate={metricsResult.metrics.hourlyRate ?? null}
-                        amountToCharge={metricsResult.metrics.amountToCharge ?? null}
-                        hasConfiguredRate={metricsResult.metrics.hasConfiguredRate ?? false}
-                        totalHours={metricsResult.metrics.total_hours}
-                        year={currentYear}
-                        month={currentMonth}
-                        isAdmin={false}
-                      />
-                    )}
-                  </div>
+                {ratesCard}
 
-                  {profile.role === "admin" && (
-                    <>
-                      {metricsResult.metrics.hasConfiguredRate ? (
-                        <div className={styles.totalBanner}>
-                          <span className={styles.totalBannerText}>Total a pagar estimado (período):</span>
-                          <strong className={styles.totalBannerValue}>
-                            {formatCurrency(metricsResult.metrics.amountToCharge)}
-                          </strong>
-                        </div>
-                      ) : (
-                        <div className={styles.totalBannerMissing}>
-                          <span>Falta configurar tarifas de desarrolladores activos para calcular el total general.</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
 
                 {/* 3. Gráfico de barras diario */}
 
