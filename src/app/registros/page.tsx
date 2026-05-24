@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getWorkLogs } from "@/backend/work-logs/get-work-logs";
 import MarkJiraLoadedButton from "@/frontend/features/work-logs/components/MarkJiraLoadedButton";
 import DeleteWorkLogButton from "@/frontend/features/work-logs/components/DeleteWorkLogButton";
+import WorkLogFilters from "@/frontend/features/work-logs/components/WorkLogFilters";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -29,7 +30,17 @@ const formatDate = (dateStr: string) => {
   return dateStr;
 };
 
-export default async function RegistrosPage() {
+interface RegistrosPageProps {
+  searchParams: Promise<{
+    developer?: string;
+    jira?: string;
+    from?: string;
+    to?: string;
+    q?: string;
+  }>;
+}
+
+export default async function RegistrosPage({ searchParams }: RegistrosPageProps) {
   const profileResult = await getCurrentProfile();
 
   if (profileResult.status === "unauthenticated") {
@@ -40,7 +51,16 @@ export default async function RegistrosPage() {
     redirect("/dashboard");
   }
 
-  const logsResult = await getWorkLogs();
+  const resolvedParams = await searchParams;
+  const initialFilters = {
+    developer: resolvedParams.developer,
+    jira: resolvedParams.jira,
+    from: resolvedParams.from,
+    to: resolvedParams.to,
+    q: resolvedParams.q,
+  };
+
+  const logsResult = await getWorkLogs(initialFilters);
 
   return (
     <main className={styles.page}>
@@ -58,11 +78,19 @@ export default async function RegistrosPage() {
             <Link href="/dashboard" className={styles.buttonSecondary}>
               Dashboard
             </Link>
+            <Link href="/pendientes-jira" className={styles.buttonSecondary}>
+              Pendientes Jira
+            </Link>
             <Link href="/registros/nuevo" className={styles.buttonPrimary}>
               Registrar horas
             </Link>
           </div>
         </header>
+
+        <WorkLogFilters
+          currentProfile={profileResult.profile}
+          initialFilters={initialFilters}
+        />
 
         {/* 1. Estado Exitoso */}
         {logsResult.status === "success" && logsResult.logs && (

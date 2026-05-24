@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useRef } from "react";
 import Link from "next/link";
 import { createWorkLogAction, updateWorkLogAction } from "@/backend/work-logs/actions";
 import { Profile } from "@/shared/types/profile";
@@ -54,6 +54,24 @@ export default function WorkLogForm({
   const defaultDescription = state.values?.description ?? initialValues.description ?? "";
   const defaultDevName = state.values?.developer_name ?? currentProfile.developer_name ?? "";
 
+  const [prevDefaultDate, setPrevDefaultDate] = useState(defaultDate);
+  const [dateValue, setDateValue] = useState(defaultDate);
+
+  if (defaultDate !== prevDefaultDate) {
+    setPrevDefaultDate(defaultDate);
+    setDateValue(defaultDate);
+  }
+
+  const datePickerRef = useRef<HTMLInputElement>(null);
+
+  const handleCalendarClick = () => {
+    try {
+      datePickerRef.current?.showPicker();
+    } catch {
+      // Fallback
+    }
+  };
+
   return (
     <form action={formAction} className={styles.form}>
       {/* Input oculto para el ID del registro en modo edición */}
@@ -103,16 +121,44 @@ export default function WorkLogForm({
       <div className={styles.row}>
         <div className={styles.field}>
           <label htmlFor="date">Fecha</label>
-          <input
-            type="text"
-            id="date"
-            name="date"
-            className={styles.input}
-            placeholder="06/05/2026 o 2026-05-06"
-            required
-            defaultValue={defaultDate}
-            disabled={isPending}
-          />
+          <div className={styles.dateInputContainer}>
+            <input
+              type="text"
+              id="date"
+              name="date"
+              className={styles.input}
+              placeholder="5/4/26, 05/04/2026 o 2026-04-05"
+              required
+              value={dateValue}
+              onChange={(e) => setDateValue(e.target.value)}
+              disabled={isPending}
+            />
+            <button
+              type="button"
+              className={styles.calendarButton}
+              onClick={handleCalendarClick}
+              disabled={isPending}
+              aria-label="Seleccionar fecha del calendario"
+            >
+              📅
+            </button>
+            <input
+              ref={datePickerRef}
+              type="date"
+              className={styles.hiddenDatePicker}
+              tabIndex={-1}
+              value={/^\d{4}-\d{2}-\d{2}$/.test(dateValue) ? dateValue : ""}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setDateValue(e.target.value);
+                }
+              }}
+              disabled={isPending}
+            />
+          </div>
+          <span className={styles.helpText}>
+            Podés escribir la fecha o elegirla con el calendario.
+          </span>
           {state.errors?.date && (
             <p className={styles.fieldError} role="alert">
               {state.errors.date}

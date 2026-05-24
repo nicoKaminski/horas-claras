@@ -1,13 +1,22 @@
 import { createSupabaseServerClient } from "@/backend/supabase/server";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { WorkLog } from "@/shared/types/work-log";
+import { normalizeDate } from "@/shared/validations/work-log";
 
 export type WorkLogsFetchResult =
   | { status: "unauthenticated"; logs: null; error: null }
   | { status: "success"; logs: WorkLog[]; error: null }
   | { status: "error"; logs: null; error: string };
 
-export async function getWorkLogs(): Promise<WorkLogsFetchResult> {
+export interface WorkLogsFilters {
+  developer?: string;
+  jira?: string;
+  from?: string;
+  to?: string;
+  q?: string;
+}
+
+export async function getWorkLogs(filters?: WorkLogsFilters): Promise<WorkLogsFetchResult> {
   try {
     const profileResult = await getCurrentProfile();
     if (profileResult.status === "unauthenticated") {
@@ -22,12 +31,51 @@ export async function getWorkLogs(): Promise<WorkLogsFetchResult> {
       };
     }
 
+    const { profile } = profileResult;
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
+
+    let query = supabase
       .from("work_logs")
-      .select("*")
+      .select("*");
+
+    // 1. Filtrar por developer (solo admisible para admin, para user forzar su propio developer_name)
+    if (filters?.developer && filters.developer !== "todos") {
+      if (profile.role === "admin") {
+        query = query.eq("developer_name", filters.developer);
+      } else {
+        query = query.eq("developer_name", profile.developer_name);
+      }
+    }
+
+    // 2. Filtrar por Jira
+    if (filters?.jira && filters.jira !== "todos") {
+      if (filters.jira === "pendiente") {
+        query = query.eq("jira_loaded", false);
+      } else if (filters.jira === "cargado") {
+        query = query.eq("jira_loaded", true);
+      }
+    }
+
+    // 3. Rango de fechas
+    if (filters?.from && filters.from.trim() !== "") {
+      const normFrom = normalizeDate(filters.from);
+      if (normFrom) {
+        query = query.gte("date", normFrom);
+      }
+    }
+    if (filters?.to && filters.to.trim() !== "") {
+      const normTo = normalizeDate(filters.to);
+      if (normTo) {
+        query = query.lte("date", normTo);
+      }
+    }
+
+    // Ordenar por fecha desc y luego created_at desc
+    query = query
       .order("date", { ascending: false })
       .order("created_at", { ascending: false });
+
+    const { data, error } = await query;
 
     if (error) {
       return {
@@ -37,7 +85,7 @@ export async function getWorkLogs(): Promise<WorkLogsFetchResult> {
       };
     }
 
-    const logs: WorkLog[] = [];
+    let logs: WorkLog[] = [];
 
     if (data) {
       for (const row of data) {
@@ -61,6 +109,16 @@ export async function getWorkLogs(): Promise<WorkLogsFetchResult> {
           });
         }
       }
+    }
+
+    // 4. Filtrar por búsqueda q en servidor (task_title y description)
+    if (filters?.q && filters.q.trim() !== "") {
+      const search = filters.q.toLowerCase().trim();
+      logs = logs.filter(
+        (log) =>
+          log.task_title.toLowerCase().includes(search) ||
+          log.description.toLowerCase().includes(search)
+      );
     }
 
     return { status: "success", logs, error: null };

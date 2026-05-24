@@ -58,11 +58,25 @@ export function normalizeDate(dateStr: string): string | null {
   }
 
   // 2. Check D/M/YYYY or DD/MM/YYYY or D-M-YYYY or DD-MM-YYYY
-  const match = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if (match) {
-    const day = parseInt(match[1], 10);
-    const month = parseInt(match[2], 10);
-    const year = parseInt(match[3], 10);
+  const match4Digit = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (match4Digit) {
+    const day = parseInt(match4Digit[1], 10);
+    const month = parseInt(match4Digit[2], 10);
+    const year = parseInt(match4Digit[3], 10);
+    if (isValidCalendarDate(day, month, year)) {
+      const paddedDay = day.toString().padStart(2, "0");
+      const paddedMonth = month.toString().padStart(2, "0");
+      return `${year}-${paddedMonth}-${paddedDay}`;
+    }
+  }
+
+  // 3. Check D/M/YY or DD/MM/YY or D-M-YY or DD-MM-YY (2-digit year)
+  const match2Digit = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})$/);
+  if (match2Digit) {
+    const day = parseInt(match2Digit[1], 10);
+    const month = parseInt(match2Digit[2], 10);
+    const yearVal = parseInt(match2Digit[3], 10);
+    const year = 2000 + yearVal;
     if (isValidCalendarDate(day, month, year)) {
       const paddedDay = day.toString().padStart(2, "0");
       const paddedMonth = month.toString().padStart(2, "0");
@@ -143,7 +157,7 @@ export function validateWorkLog(values: WorkLogFormValues): WorkLogValidationRes
   } else {
     const norm = normalizeDate(values.date);
     if (!norm) {
-      errors.date = "Formato de fecha inválido (ej: 06/05/2026 o 2026-05-06).";
+      errors.date = "Formato de fecha inválido (ej: 5/4/26, 05/04/2026 o 2026-04-05).";
       isValid = false;
     } else {
       normalizedDate = norm;

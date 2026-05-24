@@ -1,0 +1,124 @@
+.filtersForm {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .filtersGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 800px) {
+  .filtersGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filterField label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.filterFieldFull {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (min-width: 640px) {
+  .filterFieldFull {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 800px) {
+  .filterFieldFull {
+    grid-column: span 4;
+  }
+}
+
+.filterFieldFull label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #0f172a;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+
+.buttonApply,
+.buttonClear {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.buttonApply {
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.buttonApply:hover {
+  background-color: #1d4ed8;
+}
+
+.buttonClear {
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #475569;
+  text-align: center;
+}
+
+.buttonClear:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
