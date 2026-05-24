@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import LogoutButton from "@/frontend/features/auth/components/LogoutButton";
 import styles from "./page.module.css";
@@ -51,20 +52,18 @@ export default async function DashboardPage() {
             <div className={styles.actionsSection}>
               <h2 className={styles.actionsSectionTitle}>Módulos</h2>
               <div className={styles.actionsGrid}>
-                <div className={`${styles.actionCard} ${styles.actionCardDisabled}`}>
+                <Link href="/registros/nuevo" className={`${styles.actionCard} ${styles.actionLink}`}>
                   <span className={styles.actionTitle}>Registrar horas</span>
                   <p className={styles.actionDescription}>
                     Carga tus horas trabajadas diarias en el sistema.
                   </p>
-                  <span className={styles.actionStatus}>Próximamente</span>
-                </div>
-                <div className={`${styles.actionCard} ${styles.actionCardDisabled}`}>
+                </Link>
+                <Link href="/registros" className={`${styles.actionCard} ${styles.actionLink}`}>
                   <span className={styles.actionTitle}>Ver registros</span>
                   <p className={styles.actionDescription}>
                     Visualiza y gestiona tu historial de horas cargadas.
                   </p>
-                  <span className={styles.actionStatus}>Próximamente</span>
-                </div>
+                </Link>
                 <div className={`${styles.actionCard} ${styles.actionCardDisabled}`}>
                   <span className={styles.actionTitle}>Pendientes Jira</span>
                   <p className={styles.actionDescription}>

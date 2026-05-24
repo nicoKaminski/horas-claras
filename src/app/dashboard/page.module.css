@@ -199,6 +199,15 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.actionLink {
+  text-decoration: none;
+}
+
+.actionLink:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.1);
+}
+
 .actionCardDisabled {
   background-color: #fafafa;
   border-color: #e5e5e5;
