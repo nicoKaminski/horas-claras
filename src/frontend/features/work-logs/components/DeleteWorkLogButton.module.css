@@ -1,24 +1,27 @@
 .button {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 700;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   cursor: pointer;
   background-color: var(--danger-bg);
   color: var(--danger);
   border: 1px solid rgba(220, 38, 38, 0.2);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
 }
 
 .button:hover:not(:disabled) {
   background-color: var(--danger);
   color: #ffffff;
   border-color: var(--danger);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
 }
 
 .button:disabled {

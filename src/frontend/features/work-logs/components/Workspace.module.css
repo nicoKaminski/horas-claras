@@ -165,18 +165,54 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 2;
+}
+
+.dateInputContainer {
+  display: flex;
+  gap: 6px;
+  position: relative;
   flex: 1;
 }
 
 .dateInput {
   padding: 9px 12px;
-  border-radius: 8px;
   border: 1px solid var(--border);
+  border-radius: 8px;
   background-color: var(--bg-surface-elevated);
   color: var(--text-primary);
   font-size: 14px;
   font-family: inherit;
   flex: 1;
+  width: 100%;
+}
+
+.calendarButton {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendarButton:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--primary);
+  color: var(--text-primary);
+}
+
+.hiddenDatePicker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .dateInput:focus {

@@ -147,8 +147,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                           title="Editar registro"
                           aria-label="Editar este registro"
                         >
-                          <FiEdit2 size={14} />
-                          <span>Editar</span>
+                          <FiEdit2 size={16} />
                         </button>
                       )}
                       {(isAdmin || (!log.jira_loaded && log.user_id === currentProfile.id)) && (
@@ -248,9 +247,9 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                       onClick={() => onEdit(log)}
                       className={styles.editBtn}
                       aria-label="Editar este registro"
+                      title="Editar registro"
                     >
-                      <FiEdit2 size={14} />
-                      <span>Editar</span>
+                      <FiEdit2 size={16} />
                     </button>
                   )}
                   {(isAdmin || (!log.jira_loaded && log.user_id === currentProfile.id)) && (

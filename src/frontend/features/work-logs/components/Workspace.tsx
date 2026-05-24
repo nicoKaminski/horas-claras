@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiPlus, FiSearch, FiRefreshCw } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
@@ -8,6 +8,7 @@ import { Profile } from "@/shared/types/profile";
 import AppModal from "@/frontend/components/modal/AppModal";
 import WorkLogForm from "./WorkLogForm";
 import WorkLogsTable from "./WorkLogsTable";
+import { normalizeDate } from "@/shared/validations/work-log";
 import styles from "./Workspace.module.css";
 
 interface WorkspaceProps {
@@ -38,6 +39,26 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
   const [selectedDeveloper, setSelectedDeveloper] = useState("todos");
   const [selectedFrom, setSelectedFrom] = useState("");
   const [selectedTo, setSelectedTo] = useState("");
+
+  // Refs and click handlers for date pickers
+  const fromDatePickerRef = useRef<HTMLInputElement>(null);
+  const toDatePickerRef = useRef<HTMLInputElement>(null);
+
+  const handleFromCalendarClick = () => {
+    try {
+      fromDatePickerRef.current?.showPicker();
+    } catch {
+      // Fallback
+    }
+  };
+
+  const handleToCalendarClick = () => {
+    try {
+      toDatePickerRef.current?.showPicker();
+    } catch {
+      // Fallback
+    }
+  };
 
   const handleMonthYearChange = (month: number, year: number) => {
     startTransition(() => {
@@ -77,9 +98,12 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
       if (log.developer_name !== selectedDeveloper) return false;
     }
 
-    // Fechas
-    if (selectedFrom !== "" && log.date < selectedFrom) return false;
-    if (selectedTo !== "" && log.date > selectedTo) return false;
+    // Fechas normalizadas
+    const normFrom = normalizeDate(selectedFrom);
+    if (normFrom && log.date < normFrom) return false;
+
+    const normTo = normalizeDate(selectedTo);
+    if (normTo && log.date > normTo) return false;
 
     return true;
   });
@@ -205,21 +229,67 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
 
           {/* Rango de fechas */}
           <div className={styles.dateRangeGroup}>
-            <input
-              type="date"
-              value={selectedFrom}
-              onChange={(e) => setSelectedFrom(e.target.value)}
-              className={styles.dateInput}
-              aria-label="Fecha desde"
-            />
+            <div className={styles.dateInputContainer}>
+              <input
+                type="text"
+                value={selectedFrom}
+                onChange={(e) => setSelectedFrom(e.target.value)}
+                placeholder="Desde (ej. 5/4/26)"
+                className={styles.dateInput}
+                aria-label="Fecha desde"
+              />
+              <button
+                type="button"
+                className={styles.calendarButton}
+                onClick={handleFromCalendarClick}
+                aria-label="Seleccionar fecha de inicio"
+              >
+                📅
+              </button>
+              <input
+                ref={fromDatePickerRef}
+                type="date"
+                className={styles.hiddenDatePicker}
+                tabIndex={-1}
+                value={/^\d{4}-\d{2}-\d{2}$/.test(normalizeDate(selectedFrom) || "") ? normalizeDate(selectedFrom) || "" : ""}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setSelectedFrom(e.target.value);
+                  }
+                }}
+              />
+            </div>
             <span className={styles.dateDivider}>a</span>
-            <input
-              type="date"
-              value={selectedTo}
-              onChange={(e) => setSelectedTo(e.target.value)}
-              className={styles.dateInput}
-              aria-label="Fecha hasta"
-            />
+            <div className={styles.dateInputContainer}>
+              <input
+                type="text"
+                value={selectedTo}
+                onChange={(e) => setSelectedTo(e.target.value)}
+                placeholder="Hasta (ej. 2026-04-05)"
+                className={styles.dateInput}
+                aria-label="Fecha hasta"
+              />
+              <button
+                type="button"
+                className={styles.calendarButton}
+                onClick={handleToCalendarClick}
+                aria-label="Seleccionar fecha de fin"
+              >
+                📅
+              </button>
+              <input
+                ref={toDatePickerRef}
+                type="date"
+                className={styles.hiddenDatePicker}
+                tabIndex={-1}
+                value={/^\d{4}-\d{2}-\d{2}$/.test(normalizeDate(selectedTo) || "") ? normalizeDate(selectedTo) || "" : ""}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setSelectedTo(e.target.value);
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <button

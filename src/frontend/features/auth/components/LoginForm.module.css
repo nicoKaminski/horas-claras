@@ -14,37 +14,37 @@
 .field label {
   font-size: 14px;
   font-weight: 600;
-  color: #314158;
+  color: var(--text-primary);
 }
 
 .field input {
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #dbe3ef;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background-color: #ffffff;
-  color: #182033;
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .field input:focus {
-  border-color: #1f6feb;
-  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .field input:disabled {
-  background-color: #f7f9fc;
-  color: #8898aa;
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
 .error {
   font-size: 14px;
-  color: #d9383a;
-  background-color: #fdf2f2;
+  color: var(--danger);
+  background-color: var(--danger-bg);
   padding: 10px 12px;
-  border: 1px solid #fde2e2;
+  border: 1px solid rgba(220, 38, 38, 0.15);
   border-radius: 6px;
   line-height: 1.4;
 }
@@ -54,7 +54,7 @@
   font-size: 16px;
   font-weight: 600;
   color: #ffffff;
-  background-color: #1f6feb;
+  background-color: var(--primary);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -62,10 +62,11 @@
 }
 
 .button:hover:not(:disabled) {
-  background-color: #155cc4;
+  background-color: var(--primary-hover);
 }
 
 .button:disabled {
-  background-color: #a0c4ff;
+  background-color: var(--border);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }

@@ -21,7 +21,7 @@
 
 .table th,
 .table td {
-  padding: 16px 20px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -161,7 +161,7 @@
 
 /* Actions styling */
 .actionsCell {
-  width: 180px;
+  width: 90px;
 }
 
 .actionsHeader {
@@ -176,25 +176,22 @@
 }
 
 .editBtn {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 700;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   cursor: pointer;
-  background-color: var(--bg-surface);
+  background-color: var(--bg-surface-elevated);
   color: var(--text-secondary);
   border: 1px solid var(--border);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
 .editBtn:hover {
   background-color: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--primary);
   border-color: var(--primary);
 }
 

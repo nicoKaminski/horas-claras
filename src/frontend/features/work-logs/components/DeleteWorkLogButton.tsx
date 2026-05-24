@@ -27,9 +27,9 @@ export default function DeleteWorkLogButton({ logId }: DeleteWorkLogButtonProps)
         onClick={handleOpen}
         className={styles.button}
         aria-label="Eliminar este registro de horas"
+        title="Eliminar registro"
       >
         <FiTrash2 size={16} />
-        <span>Eliminar</span>
       </button>
 
       <AppModal

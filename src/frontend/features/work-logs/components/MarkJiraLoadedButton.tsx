@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { FiCheck } from "react-icons/fi";
 import { markWorkLogAsJiraLoadedAction } from "@/backend/work-logs/actions";
 import styles from "./MarkJiraLoadedButton.module.css";
 
@@ -22,8 +23,9 @@ export default function MarkJiraLoadedButton({ logId }: MarkJiraLoadedButtonProp
         className={styles.button}
         disabled={isPending}
         aria-label="Marcar este registro como cargado en Jira"
+        title="Marcar como cargado en Jira"
       >
-        {isPending ? "Cargando..." : "Marcar cargado en Jira"}
+        {isPending ? <div className={styles.spinner} /> : <FiCheck size={16} />}
       </button>
       {state?.error && (
         <span className={styles.error} role="alert">
