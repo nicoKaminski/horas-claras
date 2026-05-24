@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { FiPlus, FiSearch, FiRefreshCw } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
@@ -10,6 +8,9 @@ import AppModal from "@/frontend/components/modal/AppModal";
 import WorkLogForm from "./WorkLogForm";
 import WorkLogsTable from "./WorkLogsTable";
 import { normalizeDate } from "@/shared/validations/work-log";
+import { useWorkLogModals } from "../hooks/useWorkLogModals";
+import { useWorkLogFilters } from "../hooks/useWorkLogFilters";
+import { useWorkspacePeriodNavigation } from "../hooks/useWorkspacePeriodNavigation";
 import styles from "./Workspace.module.css";
 
 interface WorkspaceProps {
@@ -25,100 +26,34 @@ const MONTH_NAMES = [
 ];
 
 export default function Workspace({ logs, currentProfile, initialMonth, initialYear }: WorkspaceProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
-
-  // Modal states
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [logToEdit, setLogToEdit] = useState<WorkLog | null>(null);
-
-  // Client-side filter states
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedJira, setSelectedJira] = useState("todos");
-  const [selectedDeveloper, setSelectedDeveloper] = useState("todos");
-  const [selectedFrom, setSelectedFrom] = useState("");
-  const [selectedTo, setSelectedTo] = useState("");
-
-  // Refs and click handlers for date pickers
-  const fromDatePickerRef = useRef<HTMLInputElement>(null);
-  const toDatePickerRef = useRef<HTMLInputElement>(null);
-
-  const handleFromCalendarClick = () => {
-    try {
-      fromDatePickerRef.current?.showPicker();
-    } catch {
-      // Fallback
-    }
-  };
-
-  const handleToCalendarClick = () => {
-    try {
-      toDatePickerRef.current?.showPicker();
-    } catch {
-      // Fallback
-    }
-  };
-
-  const handleMonthYearChange = (month: number, year: number) => {
-    startTransition(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("month", month.toString());
-      params.set("year", year.toString());
-      router.push(`/registros?${params.toString()}`);
-    });
-  };
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedJira("todos");
-    setSelectedDeveloper("todos");
-    setSelectedFrom("");
-    setSelectedTo("");
-  };
-
-  // 1. Filtrar registros en el cliente
-  const filteredLogs = logs.filter((log) => {
-    // Buscar texto (título o descripción)
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-      const matchesTitle = log.task_title.toLowerCase().includes(query);
-      const matchesDesc = log.description.toLowerCase().includes(query);
-      if (!matchesTitle && !matchesDesc) return false;
-    }
-
-    // Estado Jira
-    if (selectedJira !== "todos") {
-      if (selectedJira === "pendiente" && log.jira_loaded) return false;
-      if (selectedJira === "cargado" && !log.jira_loaded) return false;
-    }
-
-    // Desarrollador (solo admin)
-    if (currentProfile.role === "admin" && selectedDeveloper !== "todos") {
-      if (log.developer_name !== selectedDeveloper) return false;
-    }
-
-    // Fechas normalizadas
-    const normFrom = normalizeDate(selectedFrom);
-    if (normFrom && log.date < normFrom) return false;
-
-    const normTo = normalizeDate(selectedTo);
-    if (normTo && log.date > normTo) return false;
-
-    return true;
-  });
-
-  const handleEditClick = (log: WorkLog) => {
-    setLogToEdit(log);
-    setIsEditOpen(true);
-  };
-
-  const closeCreateModal = () => setIsCreateOpen(false);
-  const closeEditModal = () => {
-    setLogToEdit(null);
-    setIsEditOpen(false);
-  };
+  const { isPending, handleMonthYearChange } = useWorkspacePeriodNavigation();
+  const {
+    isCreateOpen,
+    isEditOpen,
+    logToEdit,
+    openCreateModal,
+    closeCreateModal,
+    handleEditClick,
+    closeEditModal,
+  } = useWorkLogModals();
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedJira,
+    setSelectedJira,
+    selectedDeveloper,
+    setSelectedDeveloper,
+    selectedFrom,
+    setSelectedFrom,
+    selectedTo,
+    setSelectedTo,
+    fromDatePickerRef,
+    toDatePickerRef,
+    handleFromCalendarClick,
+    handleToCalendarClick,
+    clearFilters,
+    filteredLogs,
+  } = useWorkLogFilters({ logs, currentProfile });
 
   const years = [];
   const currentSystemYear = new Date().getFullYear();
@@ -139,7 +74,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
         </div>
         <button
           type="button"
-          onClick={() => setIsCreateOpen(true)}
+          onClick={openCreateModal}
           className={styles.btnPrimary}
         >
           <FiPlus size={18} />
@@ -316,7 +251,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
             <p>Intentá modificando los filtros o cargá un nuevo registro de horas.</p>
             <button
               type="button"
-              onClick={() => setIsCreateOpen(true)}
+              onClick={openCreateModal}
               className={styles.btnPrimary}
             >
               <FiPlus size={16} />

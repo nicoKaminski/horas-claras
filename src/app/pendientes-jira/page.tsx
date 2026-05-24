@@ -6,29 +6,12 @@ import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import MarkJiraLoadedButton from "@/frontend/features/work-logs/components/MarkJiraLoadedButton";
 import DeleteWorkLogButton from "@/frontend/features/work-logs/components/DeleteWorkLogButton";
 import AppShell from "@/frontend/components/app-shell/AppShell";
+import { formatTime, formatDate } from "@/frontend/features/work-logs/utils/work-log-table";
 import styles from "./page.module.css";
 
 export const metadata = {
   title: "Pendientes Jira · Horas Claras",
   description: "Listado de registros de horas pendientes de cargar en Jira",
-};
-
-const formatTime = (timeStr: string | null) => {
-  if (!timeStr) return "";
-  const parts = timeStr.split(":");
-  if (parts.length >= 2) {
-    return `${parts[0]}:${parts[1]}`;
-  }
-  return timeStr;
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const parts = dateStr.split("-");
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return dateStr;
 };
 
 export default async function PendientesJiraPage() {

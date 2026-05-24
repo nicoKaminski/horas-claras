@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { FiEdit2, FiCheck, FiClock } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
 import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import MarkJiraLoadedButton from "./MarkJiraLoadedButton";
 import DeleteWorkLogButton from "./DeleteWorkLogButton";
+import { useWorkLogsTableRows } from "../hooks/useWorkLogsTableRows";
+import { formatTime, formatDate } from "../utils/work-log-table";
 import styles from "./WorkLogsTable.module.css";
 
 interface WorkLogsTableProps {
@@ -15,48 +16,15 @@ interface WorkLogsTableProps {
   onEdit: (log: WorkLog) => void;
 }
 
-const formatTime = (timeStr: string | null) => {
-  if (!timeStr) return "";
-  const parts = timeStr.split(":");
-  if (parts.length >= 2) {
-    return `${parts[0]}:${parts[1]}`;
-  }
-  return timeStr;
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const parts = dateStr.split("-");
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return dateStr;
-};
-
 export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogsTableProps) {
-  const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
-
-  const toggleExpand = (id: string) => {
-    setExpandedLogs((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
-  // Pre-calcular horas totales por fecha y desarrollador
-  const totalHoursByDateAndDev = logs.reduce((acc, log) => {
-    const key = `${log.date}_${log.developer_name}`;
-    acc[key] = (acc[key] || 0) + log.duration_hours;
-    return acc;
-  }, {} as Record<string, number>);
+  const {
+    expandedLogs,
+    toggleExpand,
+    totalHoursByDateAndDev,
+    checkCanEdit,
+  } = useWorkLogsTableRows({ logs, currentProfile });
 
   const isAdmin = currentProfile.role === "admin";
-
-  const getCanEdit = (log: WorkLog) => {
-    const isOwner = log.user_id === currentProfile.id;
-    const isPending = !log.jira_loaded;
-    return isAdmin || (isOwner && isPending);
-  };
 
   return (
     <div className={styles.wrapper}>
@@ -85,7 +53,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
               const displayText = isLong && !isExpanded
                 ? `${log.description.substring(0, 70)}...`
                 : log.description;
-              const canEdit = getCanEdit(log);
+              const canEdit = checkCanEdit(log);
 
               return (
                 <tr key={log.id}>
@@ -173,7 +141,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
           const displayText = isLong && !isExpanded
             ? `${log.description.substring(0, 100)}...`
             : log.description;
-          const canEdit = getCanEdit(log);
+          const canEdit = checkCanEdit(log);
 
           return (
             <article key={log.id} className={styles.mobileCard}>
