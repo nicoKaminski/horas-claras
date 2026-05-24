@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
+import { getDashboardMetrics } from "@/backend/work-logs/get-dashboard-metrics";
 import LogoutButton from "@/frontend/features/auth/components/LogoutButton";
 import styles from "./page.module.css";
 
@@ -15,6 +16,9 @@ export default async function DashboardPage() {
   if (result.status === "unauthenticated") {
     redirect("/login");
   }
+
+  // Fetch metrics if authenticated
+  const metricsResult = await getDashboardMetrics();
 
   return (
     <main className={styles.page}>
@@ -47,6 +51,89 @@ export default async function DashboardPage() {
                   {result.profile.role}
                 </span>
               </div>
+            </div>
+
+            {/* Sección de Métricas */}
+            <div className={styles.metricsSection}>
+              <h2 className={styles.metricsSectionTitle}>
+                Métricas de {metricsResult.status === "success" && metricsResult.metrics ? metricsResult.metrics.month_name : "este mes"}
+              </h2>
+
+              {metricsResult.status === "success" && metricsResult.metrics && (
+                <>
+                  {metricsResult.metrics.total_logs === 0 ? (
+                    <div className={styles.emptyMetrics}>
+                      <p className={styles.emptyMetricsText}>
+                        No hay registros de horas cargados en este mes todavía.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.metricsGrid}>
+                        <div className={styles.metricCard}>
+                          <span className={styles.metricLabel}>Total Horas Mes</span>
+                          <span className={styles.metricValue}>{metricsResult.metrics.total_hours} hs</span>
+                        </div>
+                        <div className={styles.metricCard}>
+                          <span className={styles.metricLabel}>Total Registros Mes</span>
+                          <span className={styles.metricValue}>{metricsResult.metrics.total_logs}</span>
+                        </div>
+                        <div className={styles.metricCard}>
+                          <span className={styles.metricLabel}>Pendientes Jira</span>
+                          <span className={styles.metricValue}>
+                            {metricsResult.metrics.pending_jira_count} ({metricsResult.metrics.pending_jira_hours} hs)
+                          </span>
+                        </div>
+                        <div className={styles.metricCard}>
+                          <span className={styles.metricLabel}>Cargados Jira</span>
+                          <span className={styles.metricValue}>
+                            {metricsResult.metrics.loaded_jira_count} ({metricsResult.metrics.loaded_jira_hours} hs)
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Desglose por desarrollador (solo admin) */}
+                      {metricsResult.metrics.breakdown && (
+                        <div className={styles.breakdownSection}>
+                          <h3 className={styles.breakdownTitle}>Desglose por Desarrollador</h3>
+                          <div className={styles.breakdownGrid}>
+                            <div className={styles.breakdownCard}>
+                              <span className={styles.breakdownDevName}>dev</span>
+                              <div className={styles.breakdownRow}>
+                                <span className={styles.breakdownLabel}>Horas totales:</span>
+                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.dev.total_hours} hs</strong>
+                              </div>
+                              <div className={styles.breakdownRow}>
+                                <span className={styles.breakdownLabel}>Pendientes Jira:</span>
+                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.dev.pending_jira_count}</strong>
+                              </div>
+                            </div>
+                            <div className={styles.breakdownCard}>
+                              <span className={styles.breakdownDevName}>compa</span>
+                              <div className={styles.breakdownRow}>
+                                <span className={styles.breakdownLabel}>Horas totales:</span>
+                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.compa.total_hours} hs</strong>
+                              </div>
+                              <div className={styles.breakdownRow}>
+                                <span className={styles.breakdownLabel}>Pendientes Jira:</span>
+                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.compa.pending_jira_count}</strong>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {metricsResult.status === "error" && (
+                <div className={styles.errorCardMini}>
+                  <p className={styles.errorTextMini}>
+                    {metricsResult.error || "Hubo un problema al cargar las métricas de horas."}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className={styles.actionsSection}>
@@ -98,4 +185,5 @@ export default async function DashboardPage() {
     </main>
   );
 }
+
 

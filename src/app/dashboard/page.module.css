@@ -247,3 +247,139 @@
   letter-spacing: 0.05em;
 }
 
+/* Sección de Métricas */
+.metricsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+  border-top: 1px solid #edf1f7;
+  padding-top: 20px;
+}
+
+.metricsSectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+}
+
+.metricLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.metricValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Desglose por desarrollador */
+.breakdownSection {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdownTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.breakdownGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 480px) {
+  .breakdownGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.breakdownCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.breakdownDevName {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1e293b;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #475569;
+}
+
+.breakdownLabel {
+  font-weight: 500;
+}
+
+.breakdownValue {
+  color: #0f172a;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+/* Estados vacíos y de error */
+.emptyMetrics {
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.emptyMetricsText {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.errorCardMini {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.errorTextMini {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+
