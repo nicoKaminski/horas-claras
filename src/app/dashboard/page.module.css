@@ -323,3 +323,51 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+.ratesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .ratesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.totalBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: var(--success-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.totalBannerText {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.totalBannerValue {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--success);
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.totalBannerMissing {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}

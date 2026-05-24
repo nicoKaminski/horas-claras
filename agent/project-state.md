@@ -96,15 +96,17 @@ Estado observado:
 Verificación del estado actual:
 
 - **Proyecto Supabase e infraestructura**: Creado y configurado.
-- **Esquema de Base de Datos**: Migración `001_initial_schema.sql` definida y aplicada en la base real. Tablas `profiles` y `work_logs` creadas.
+- **Esquema de Base de Datos**: Migraciones `001_initial_schema.sql` y `002_monthly_hourly_rates.sql` definidas. Tablas `profiles`, `work_logs` y `monthly_hourly_rates` creadas.
 - **Seguridad**: RLS habilitado y policies de acceso definidas.
 - **Autenticación**: Login y logout por Supabase Auth integrado.
 - **Clientes Supabase**: Clientes browser y server-side implementados con SSR.
 - **Funcionalidades de Horas**: CRUD completo de registros de horas y vista de pendientes Jira implementados.
-- **Dashboard**: Panel interactivo con estadísticas, gráfico de barras diario y desglose de desarrolladores implementado.
+- **Tarifas y Cobros**: Soporte para configurar y visualizar tarifas por hora por desarrollador, mes y año. Visualización del total a cobrar para el mes seleccionado, controlada por roles (`dev-admin` puede editar todas, `dev-user` solo puede leer la propia).
+- **Dashboard**: Panel interactivo con estadísticas, gráfico de barras diario, desglose de desarrolladores y tarjetas de tarifas/cobros implementado.
 - **Filtros**: Workspace con buscador de texto libre, filtros de Jira, desarrollador y rangos de fechas.
 - **Branding**: Branding real aplicado en login y AppShell con logos, favicons específicos de tema, y corrección de warnings de hidratación por tema.
 - **Documentación**: README, roadmap, decisiones y setup local actualizados. Carga histórica manual documentada en `docs/carga-historica.md`.
+
 
 ---
 

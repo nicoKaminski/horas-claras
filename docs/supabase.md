@@ -87,6 +87,37 @@ Despues de aplicar la migracion en Supabase, verificar conceptualmente que:
 
 No incluir en documentacion publica datos reales, emails reales, UUIDs reales ni valores sensibles del proyecto Supabase.
 
+## Tarifas Mensuales (monthly_hourly_rates)
+
+Se añade soporte para tarifas con la tabla `monthly_hourly_rates`.
+
+### Estructura de la tabla:
+- `id`: `uuid` clave primaria por defecto `gen_random_uuid()`
+- `developer_name`: `text` (restringido a `'dev'`, `'compa'`)
+- `year`: `integer` (restringido entre 2000 y 2100)
+- `month`: `integer` (restringido entre 1 y 12)
+- `hourly_rate`: `numeric(10,2)` (restringido a > 0)
+- `created_by`: `uuid` referencia a `profiles(id)`
+- `created_at`: `timestamptz` por defecto `now()`
+- `updated_at`: `timestamptz` por defecto `now()`
+
+Unicidad: `unique(developer_name, year, month)`
+
+### Políticas RLS:
+- `Admins can view all monthly hourly rates`: SELECT permitido si `is_admin()`.
+- `Users can view their own monthly hourly rates`: SELECT permitido si `developer_name` coincide con el perfil del usuario autenticado.
+- `Admins can insert monthly hourly rates`: INSERT permitido si `is_admin()`.
+- `Admins can update monthly hourly rates`: UPDATE permitido si `is_admin()`.
+
+Para el MVP no existe policy ni permisos para eliminar (`DELETE`) registros de tarifas.
+
+### Privilegios (Grants):
+- Se revocan todos los privilegios por defecto para los roles `anon`, `authenticated` y `public`.
+- Se otorgan exclusivamente los privilegios `SELECT`, `INSERT` y `UPDATE` al rol `authenticated`.
+- Quedan explícitamente excluidos los privilegios `DELETE`, `TRUNCATE`, `TRIGGER` y `REFERENCES` para el rol `authenticated`.
+
+
 ## Carga Histórica Manual
 
 Se ha documentado un procedimiento seguro para la carga de datos históricos de horas en la base de datos de Supabase. Este procedimiento utiliza transacciones controladas con `ROLLBACK`/`COMMIT` y comprobaciones previas para evitar duplicados. Para más información, consulta la guía completa en [Carga Histórica Manual](./carga-historica.md).
+

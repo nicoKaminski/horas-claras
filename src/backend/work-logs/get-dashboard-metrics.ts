@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/backend/supabase/server";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
-import { DashboardMetrics } from "@/shared/types/dashboard";
+import { DashboardMetrics, DeveloperMetrics } from "@/shared/types/dashboard";
+import { getMonthlyRates } from "@/backend/monthly-rates/get-monthly-rates";
 
 export type DashboardMetricsResult =
   | { status: "unauthenticated"; metrics: null; error: null }
@@ -79,7 +80,7 @@ export async function getDashboardMetrics(
     let loadedJiraHours = 0;
 
     // Desglose por developer (solo para admin)
-    const breakdown: Record<"dev" | "compa", { total_hours: number; pending_jira_count: number }> | null =
+    const breakdown: Record<"dev" | "compa", DeveloperMetrics> | null =
       profile.role === "admin"
         ? {
             dev: { total_hours: 0, pending_jira_count: 0 },
@@ -164,6 +165,78 @@ export async function getDashboardMetrics(
     const jira_loaded_percentage = totalHours > 0 ? Math.round((loadedJiraHours / totalHours) * 100) : 0;
     const average_hours_per_log = totalLogs > 0 ? Math.round((totalHours / totalLogs) * 100) / 100 : 0;
 
+    // Fetch monthly rates for calculations
+    const ratesResult = await getMonthlyRates(year, monthIndex + 1);
+    
+    let hourlyRate: number | null = null;
+    let amountToCharge: number | null = null;
+    let hasConfiguredRate = false;
+
+    if (ratesResult.status === "success" && ratesResult.rates) {
+      const rates = ratesResult.rates;
+      if (profile.role === "admin" && breakdown) {
+        // Admin: populate breakdown per developer
+        const devRate = rates.find((r) => r.developer_name === "dev");
+        const compaRate = rates.find((r) => r.developer_name === "compa");
+
+        if (devRate) {
+          breakdown.dev.hourlyRate = Number(devRate.hourly_rate);
+          breakdown.dev.amountToCharge = Math.round(breakdown.dev.total_hours * Number(devRate.hourly_rate) * 100) / 100;
+          breakdown.dev.hasConfiguredRate = true;
+        } else {
+          breakdown.dev.hourlyRate = null;
+          breakdown.dev.amountToCharge = null;
+          breakdown.dev.hasConfiguredRate = false;
+        }
+
+        if (compaRate) {
+          breakdown.compa.hourlyRate = Number(compaRate.hourly_rate);
+          breakdown.compa.amountToCharge = Math.round(breakdown.compa.total_hours * Number(compaRate.hourly_rate) * 100) / 100;
+          breakdown.compa.hasConfiguredRate = true;
+        } else {
+          breakdown.compa.hourlyRate = null;
+          breakdown.compa.amountToCharge = null;
+          breakdown.compa.hasConfiguredRate = false;
+        }
+
+        // Calculate general total amount to charge if all active developers have configured rates
+        let adminHasConfiguredRate = true;
+        let adminAmountToCharge = 0;
+
+        if (breakdown.dev.total_hours > 0) {
+          if (breakdown.dev.hasConfiguredRate) {
+            adminAmountToCharge += breakdown.dev.amountToCharge || 0;
+          } else {
+            adminHasConfiguredRate = false;
+          }
+        }
+
+        if (breakdown.compa.total_hours > 0) {
+          if (breakdown.compa.hasConfiguredRate) {
+            adminAmountToCharge += breakdown.compa.amountToCharge || 0;
+          } else {
+            adminHasConfiguredRate = false;
+          }
+        }
+
+        hasConfiguredRate = adminHasConfiguredRate;
+        amountToCharge = adminHasConfiguredRate ? Math.round(adminAmountToCharge * 100) / 100 : null;
+        hourlyRate = null; // Admin doesn't have a single hourly rate
+      } else {
+        // Regular User: populate own rate and own total
+        const ownRate = rates.find((r) => r.developer_name === profile.developer_name);
+        if (ownRate) {
+          hourlyRate = Number(ownRate.hourly_rate);
+          amountToCharge = Math.round(totalHours * Number(ownRate.hourly_rate) * 100) / 100;
+          hasConfiguredRate = true;
+        } else {
+          hourlyRate = null;
+          amountToCharge = null;
+          hasConfiguredRate = false;
+        }
+      }
+    }
+
     const metrics: DashboardMetrics = {
       total_hours: totalHours,
       total_logs: totalLogs,
@@ -179,7 +252,11 @@ export async function getDashboardMetrics(
       month_name: monthName,
       start_date: startStr,
       end_date: endStr,
+      hourlyRate,
+      amountToCharge,
+      hasConfiguredRate,
     };
+
 
     return { status: "success", metrics, error: null };
   } catch {

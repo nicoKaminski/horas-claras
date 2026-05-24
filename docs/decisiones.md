@@ -69,3 +69,14 @@ No se usa Tailwind.
 Para el MVP no se crea un backend separado con Express, Nest u otro framework.
 
 La app vive en Next.js y la seguridad de datos sensibles debe estar respaldada por Supabase RLS.
+
+## Tarifas Mensuales por Desarrollador
+
+Para el MVP de Horas Claras, se agrega soporte para configurar y visualizar tarifas por hora por desarrollador, mes y año.
+
+- Las tarifas se almacenan de forma persistente en `monthly_hourly_rates`.
+- Solo los usuarios administradores (`dev-admin`) pueden crear, actualizar y ver todas las tarifas.
+- Los usuarios regulares (`dev-user`) solo pueden consultar su propia tarifa y el total estimado a cobrar para el mes seleccionado, sin permisos de escritura.
+- El cálculo del total a cobrar se realiza multiplicando las horas reales trabajadas en el mes seleccionado por la tarifa configurada correspondiente.
+- Si no hay tarifa configurada para un desarrollador en un mes determinado, la UI muestra un estado de "Sin tarifa configurada", sugiriendo al administrador un valor inicial de 4500 ARS.
+

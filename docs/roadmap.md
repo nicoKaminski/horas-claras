@@ -45,6 +45,8 @@ Roadmap funcional del MVP de Horas Claras. Los items se mantienen como pendiente
 - [x] Mejorar responsive.
 - [x] Revisar accesibilidad basica.
 - [x] Pulir UI para portfolio.
+- [x] Agregar soporte de tarifa mensual por desarrollador y total a cobrar en dashboard.
+
 
 ## Fase 6: Deploy
 

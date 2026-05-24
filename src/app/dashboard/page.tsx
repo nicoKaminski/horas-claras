@@ -4,7 +4,19 @@ import { getDashboardMetrics } from "@/backend/work-logs/get-dashboard-metrics";
 import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import AppShell from "@/frontend/components/app-shell/AppShell";
 import DashboardFilters from "@/frontend/features/dashboard/components/DashboardFilters";
+import MonthlyRateCard from "@/frontend/features/dashboard/components/MonthlyRateCard";
 import styles from "./page.module.css";
+
+const formatCurrency = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return "-";
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 2,
+  }).format(value);
+};
+
+
 
 export const metadata = {
   title: "Dashboard · Horas Claras",
@@ -128,7 +140,67 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   </div>
                 </div>
 
+                {/* Tarifas y Cobro Section */}
+                <div className={`${styles.card} ${styles.fullWidthCard}`}>
+                  <h2 className={styles.cardTitle}>Tarifas y Cobro ({metricsResult.metrics.month_name})</h2>
+                  <div className={styles.ratesGrid}>
+                    {profile.role === "admin" ? (
+                      <>
+                        <MonthlyRateCard
+                          developerName="dev"
+                          hourlyRate={metricsResult.metrics.breakdown?.dev.hourlyRate ?? null}
+                          amountToCharge={metricsResult.metrics.breakdown?.dev.amountToCharge ?? null}
+                          hasConfiguredRate={metricsResult.metrics.breakdown?.dev.hasConfiguredRate ?? false}
+                          totalHours={metricsResult.metrics.breakdown?.dev.total_hours ?? 0}
+                          year={currentYear}
+                          month={currentMonth}
+                          isAdmin={true}
+                        />
+                        <MonthlyRateCard
+                          developerName="compa"
+                          hourlyRate={metricsResult.metrics.breakdown?.compa.hourlyRate ?? null}
+                          amountToCharge={metricsResult.metrics.breakdown?.compa.amountToCharge ?? null}
+                          hasConfiguredRate={metricsResult.metrics.breakdown?.compa.hasConfiguredRate ?? false}
+                          totalHours={metricsResult.metrics.breakdown?.compa.total_hours ?? 0}
+                          year={currentYear}
+                          month={currentMonth}
+                          isAdmin={true}
+                        />
+                      </>
+                    ) : (
+                      <MonthlyRateCard
+                        developerName={profile.developer_name}
+                        hourlyRate={metricsResult.metrics.hourlyRate ?? null}
+                        amountToCharge={metricsResult.metrics.amountToCharge ?? null}
+                        hasConfiguredRate={metricsResult.metrics.hasConfiguredRate ?? false}
+                        totalHours={metricsResult.metrics.total_hours}
+                        year={currentYear}
+                        month={currentMonth}
+                        isAdmin={false}
+                      />
+                    )}
+                  </div>
+
+                  {profile.role === "admin" && (
+                    <>
+                      {metricsResult.metrics.hasConfiguredRate ? (
+                        <div className={styles.totalBanner}>
+                          <span className={styles.totalBannerText}>Total a pagar estimado (período):</span>
+                          <strong className={styles.totalBannerValue}>
+                            {formatCurrency(metricsResult.metrics.amountToCharge)}
+                          </strong>
+                        </div>
+                      ) : (
+                        <div className={styles.totalBannerMissing}>
+                          <span>Falta configurar tarifas de desarrolladores activos para calcular el total general.</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
                 {/* 3. Gráfico de barras diario */}
+
                 <div className={`${styles.card} ${styles.fullWidthCard}`}>
                   <h2 className={styles.cardTitle}>Horas trabajadas por día</h2>
                   <div className={styles.chartScroll}>
