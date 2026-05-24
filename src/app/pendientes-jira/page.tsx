@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
-import { getWorkLogs } from "@/backend/work-logs/get-work-logs";
+import { getPendingJiraWorkLogs } from "@/backend/work-logs/get-pending-jira-work-logs";
 import MarkJiraLoadedButton from "@/frontend/features/work-logs/components/MarkJiraLoadedButton";
 import styles from "./page.module.css";
 
 export const metadata = {
-  title: "Ver registros · Horas Claras",
-  description: "Listado de tus registros de horas de trabajo",
+  title: "Pendientes Jira · Horas Claras",
+  description: "Listado de registros de horas pendientes de cargar en Jira",
 };
 
 const formatTime = (timeStr: string | null) => {
@@ -28,7 +28,7 @@ const formatDate = (dateStr: string) => {
   return dateStr;
 };
 
-export default async function RegistrosPage() {
+export default async function PendientesJiraPage() {
   const profileResult = await getCurrentProfile();
 
   if (profileResult.status === "unauthenticated") {
@@ -39,23 +39,26 @@ export default async function RegistrosPage() {
     redirect("/dashboard");
   }
 
-  const logsResult = await getWorkLogs();
+  const logsResult = await getPendingJiraWorkLogs();
 
   return (
     <main className={styles.page}>
-      <section className={styles.card} aria-labelledby="registros-title">
+      <section className={styles.card} aria-labelledby="pendientes-title">
         <header className={styles.header}>
           <div className={styles.headerInfo}>
-            <h1 id="registros-title" className={styles.title}>
-              Registros de horas
+            <h1 id="pendientes-title" className={styles.title}>
+              Pendientes de Jira
             </h1>
             <p className={styles.subtitle}>
-              Historial de horas trabajadas registradas en el sistema
+              Registros de horas que aún no se han cargado en Jira
             </p>
           </div>
           <div className={styles.headerActions}>
             <Link href="/dashboard" className={styles.buttonSecondary}>
               Dashboard
+            </Link>
+            <Link href="/registros" className={styles.buttonSecondary}>
+              Ver registros
             </Link>
             <Link href="/registros/nuevo" className={styles.buttonPrimary}>
               Registrar horas
@@ -69,14 +72,13 @@ export default async function RegistrosPage() {
             {logsResult.logs.length === 0 ? (
               <div className={styles.emptyState}>
                 <h2 className={styles.emptyStateTitle}>
-                  No hay registros todavía
+                  ¡Todo al día!
                 </h2>
                 <p className={styles.emptyStateDescription}>
-                  Comenzá registrando las horas que trabajaste hoy haciendo click en
-                  el botón de arriba.
+                  No hay registros de horas pendientes de cargar en Jira. Buen trabajo.
                 </p>
-                <Link href="/registros/nuevo" className={styles.buttonPrimary}>
-                  Registrar mi primera hora
+                <Link href="/registros" className={styles.buttonPrimary}>
+                  Ver todos los registros
                 </Link>
               </div>
             ) : (
@@ -112,20 +114,12 @@ export default async function RegistrosPage() {
                         {formatTime(log.end_time)}
                       </div>
                       <div className={styles.metaItem}>
-                        {log.jira_loaded ? (
-                          <span className={`${styles.jiraBadge} ${styles.jiraBadgeLoaded}`}>
-                            Cargado Jira
-                          </span>
+                        {profileResult.profile.role === "admin" ? (
+                          <MarkJiraLoadedButton logId={log.id} />
                         ) : (
-                          <>
-                            {profileResult.profile.role === "admin" ? (
-                              <MarkJiraLoadedButton logId={log.id} />
-                            ) : (
-                              <span className={`${styles.jiraBadge} ${styles.jiraBadgePending}`}>
-                                Pendiente Jira
-                              </span>
-                            )}
-                          </>
+                          <span className={`${styles.jiraBadge} ${styles.jiraBadgePending}`}>
+                            Pendiente Jira
+                          </span>
                         )}
                       </div>
                     </div>
@@ -142,7 +136,7 @@ export default async function RegistrosPage() {
             <h2 className={styles.errorCardTitle}>Error al cargar registros</h2>
             <p className={styles.errorCardDescription}>
               {logsResult.error ||
-                "Hubo un problema al consultar tus registros. Por favor, intenta de nuevo más tarde."}
+                "Hubo un problema al consultar tus pendientes. Por favor, intenta de nuevo más tarde."}
             </p>
           </div>
         )}

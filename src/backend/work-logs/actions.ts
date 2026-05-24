@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/backend/supabase/server";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { validateWorkLog, WorkLogFormValues } from "@/shared/validations/work-log";
@@ -129,3 +130,48 @@ export async function createWorkLogAction(
 
   return {};
 }
+
+export async function markWorkLogAsJiraLoadedAction(
+  _prevState: WorkLogActionState | undefined,
+  formData: FormData
+): Promise<WorkLogActionState> {
+  try {
+    const profileResult = await getCurrentProfile();
+    if (profileResult.status !== "success" || !profileResult.profile) {
+      return { error: "No tienes una sesión activa o un perfil configurado." };
+    }
+
+    const { profile } = profileResult;
+
+    if (profile.role !== "admin") {
+      return { error: "No tienes permisos para marcar registros como cargados en Jira." };
+    }
+
+    const logId = formData.get("id") as string;
+    if (!logId || logId.trim() === "") {
+      return { error: "El ID de registro es inválido." };
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const { error: updateError } = await supabase
+      .from("work_logs")
+      .update({
+        jira_loaded: true,
+        jira_loaded_at: new Date().toISOString(),
+      })
+      .eq("id", logId);
+
+    if (updateError) {
+      return { error: "No se pudo actualizar el registro de horas en la base de datos." };
+    }
+
+    revalidatePath("/registros");
+    revalidatePath("/pendientes-jira");
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch {
+    return { error: "Ocurrió un error inesperado al marcar el registro como cargado." };
+  }
+}
+

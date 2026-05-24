@@ -64,13 +64,12 @@ export default async function DashboardPage() {
                     Visualiza y gestiona tu historial de horas cargadas.
                   </p>
                 </Link>
-                <div className={`${styles.actionCard} ${styles.actionCardDisabled}`}>
+                <Link href="/pendientes-jira" className={`${styles.actionCard} ${styles.actionLink}`}>
                   <span className={styles.actionTitle}>Pendientes Jira</span>
                   <p className={styles.actionDescription}>
                     Revisa qué horas faltan subir a tus tareas de Jira.
                   </p>
-                  <span className={styles.actionStatus}>Próximamente</span>
-                </div>
+                </Link>
               </div>
             </div>
           </>
