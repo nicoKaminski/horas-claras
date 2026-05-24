@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getDashboardMetrics } from "@/backend/work-logs/get-dashboard-metrics";
-import LogoutButton from "@/frontend/features/auth/components/LogoutButton";
+import AppShell from "@/frontend/components/app-shell/AppShell";
+import DashboardFilters from "@/frontend/features/dashboard/components/DashboardFilters";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -10,180 +10,213 @@ export const metadata = {
   description: "Panel de control principal",
 };
 
-export default async function DashboardPage() {
-  const result = await getCurrentProfile();
+interface DashboardPageProps {
+  searchParams: Promise<{
+    month?: string;
+    year?: string;
+  }>;
+}
 
-  if (result.status === "unauthenticated") {
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const profileResult = await getCurrentProfile();
+
+  if (profileResult.status === "unauthenticated") {
     redirect("/login");
   }
 
-  // Fetch metrics if authenticated
-  const metricsResult = await getDashboardMetrics();
+  if (profileResult.status !== "success" || !profileResult.profile) {
+    redirect("/login");
+  }
+
+  const { profile } = profileResult;
+
+  const resolvedParams = await searchParams;
+  const currentMonth = resolvedParams.month ? Number(resolvedParams.month) : new Date().getMonth() + 1;
+  const currentYear = resolvedParams.year ? Number(resolvedParams.year) : new Date().getFullYear();
+
+  const metricsResult = await getDashboardMetrics(currentMonth, currentYear);
 
   return (
-    <main className={styles.page}>
-      <section className={styles.card} aria-labelledby="dashboard-title">
-        <div className={styles.header}>
-          <h1 id="dashboard-title" className={styles.title}>Dashboard</h1>
-          <LogoutButton />
-        </div>
+    <AppShell profile={profile} activeItem="dashboard">
+      <div className={styles.dashboardContainer}>
+        <header className={styles.header}>
+          <div>
+            <h1 className={styles.title}>Dashboard</h1>
+            <p className={styles.subtitle}>
+              Estadísticas y estado de tus registros para el período seleccionado
+            </p>
+          </div>
+        </header>
 
-        {result.status === "success" && result.profile && (
+        <DashboardFilters currentMonth={currentMonth} currentYear={currentYear} />
+
+        {metricsResult.status === "success" && metricsResult.metrics && (
           <>
-            <div className={styles.profileSection}>
-              <div className={styles.profileRow}>
-                <span className={styles.label}>Desarrollador:</span>
-                <span
-                  className={`${styles.badge} ${
-                    result.profile.username === "dev" ? styles.badgeDev : styles.badgeCompa
-                  }`}
-                >
-                  {result.profile.developer_name}
-                </span>
+            {metricsResult.metrics.total_logs === 0 ? (
+              <div className={styles.emptyMetrics}>
+                <p className={styles.emptyMetricsText}>
+                  No hay registros de horas cargados en este período todavía.
+                </p>
               </div>
-              <div className={styles.profileRow}>
-                <span className={styles.label}>Rol:</span>
-                <span
-                  className={`${styles.badge} ${
-                    result.profile.role === "admin" ? styles.badgeAdmin : styles.badgeUser
-                  }`}
-                >
-                  {result.profile.role}
-                </span>
-              </div>
-            </div>
+            ) : (
+              <div className={styles.contentGrid}>
+                {/* 1. Tarjetas de métricas principales */}
+                <div className={styles.metricsGrid}>
+                  <div className={styles.metricCard}>
+                    <span className={styles.metricLabel}>Total Horas Mes</span>
+                    <span className={styles.metricValue}>
+                      {metricsResult.metrics.total_hours} hs
+                    </span>
+                  </div>
+                  <div className={styles.metricCard}>
+                    <span className={styles.metricLabel}>Total Registros</span>
+                    <span className={styles.metricValue}>
+                      {metricsResult.metrics.total_logs}
+                    </span>
+                  </div>
+                  <div className={styles.metricCard}>
+                    <span className={styles.metricLabel}>Promedio por Registro</span>
+                    <span className={styles.metricValue}>
+                      {metricsResult.metrics.average_hours_per_log} hs
+                    </span>
+                  </div>
+                  <div className={styles.metricCard}>
+                    <span className={styles.metricLabel}>Día con Más Horas</span>
+                    <span className={styles.metricValue}>
+                      {metricsResult.metrics.top_day
+                        ? `${metricsResult.metrics.top_day.hours} hs (Día ${metricsResult.metrics.top_day.date.split("-")[2]})`
+                        : "-"}
+                    </span>
+                  </div>
+                </div>
 
-            {/* Sección de Métricas */}
-            <div className={styles.metricsSection}>
-              <h2 className={styles.metricsSectionTitle}>
-                Métricas de {metricsResult.status === "success" && metricsResult.metrics ? metricsResult.metrics.month_name : "este mes"}
-              </h2>
-
-              {metricsResult.status === "success" && metricsResult.metrics && (
-                <>
-                  {metricsResult.metrics.total_logs === 0 ? (
-                    <div className={styles.emptyMetrics}>
-                      <p className={styles.emptyMetricsText}>
-                        No hay registros de horas cargados en este mes todavía.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className={styles.metricsGrid}>
-                        <div className={styles.metricCard}>
-                          <span className={styles.metricLabel}>Total Horas Mes</span>
-                          <span className={styles.metricValue}>{metricsResult.metrics.total_hours} hs</span>
-                        </div>
-                        <div className={styles.metricCard}>
-                          <span className={styles.metricLabel}>Total Registros Mes</span>
-                          <span className={styles.metricValue}>{metricsResult.metrics.total_logs}</span>
-                        </div>
-                        <div className={styles.metricCard}>
-                          <span className={styles.metricLabel}>Pendientes Jira</span>
-                          <span className={styles.metricValue}>
-                            {metricsResult.metrics.pending_jira_count} ({metricsResult.metrics.pending_jira_hours} hs)
-                          </span>
-                        </div>
-                        <div className={styles.metricCard}>
-                          <span className={styles.metricLabel}>Cargados Jira</span>
-                          <span className={styles.metricValue}>
-                            {metricsResult.metrics.loaded_jira_count} ({metricsResult.metrics.loaded_jira_hours} hs)
-                          </span>
+                {/* 2. Barra de progreso Jira */}
+                <div className={styles.card}>
+                  <h2 className={styles.cardTitle}>Estado de carga en Jira</h2>
+                  <div className={styles.jiraSection}>
+                    <div className={styles.jiraMetrics}>
+                      <div className={styles.jiraMetricItem}>
+                        <span className={`${styles.dot} ${styles.dotSuccess}`} />
+                        <div>
+                          <span className={styles.jiraMetricLabel}>Cargadas en Jira</span>
+                          <strong className={styles.jiraMetricVal}>
+                            {metricsResult.metrics.loaded_jira_hours} hs ({metricsResult.metrics.loaded_jira_count} logs)
+                          </strong>
                         </div>
                       </div>
-
-                      {/* Desglose por desarrollador (solo admin) */}
-                      {metricsResult.metrics.breakdown && (
-                        <div className={styles.breakdownSection}>
-                          <h3 className={styles.breakdownTitle}>Desglose por Desarrollador</h3>
-                          <div className={styles.breakdownGrid}>
-                            <div className={styles.breakdownCard}>
-                              <span className={styles.breakdownDevName}>dev</span>
-                              <div className={styles.breakdownRow}>
-                                <span className={styles.breakdownLabel}>Horas totales:</span>
-                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.dev.total_hours} hs</strong>
-                              </div>
-                              <div className={styles.breakdownRow}>
-                                <span className={styles.breakdownLabel}>Pendientes Jira:</span>
-                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.dev.pending_jira_count}</strong>
-                              </div>
-                            </div>
-                            <div className={styles.breakdownCard}>
-                              <span className={styles.breakdownDevName}>compa</span>
-                              <div className={styles.breakdownRow}>
-                                <span className={styles.breakdownLabel}>Horas totales:</span>
-                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.compa.total_hours} hs</strong>
-                              </div>
-                              <div className={styles.breakdownRow}>
-                                <span className={styles.breakdownLabel}>Pendientes Jira:</span>
-                                <strong className={styles.breakdownValue}>{metricsResult.metrics.breakdown.compa.pending_jira_count}</strong>
-                              </div>
-                            </div>
-                          </div>
+                      <div className={styles.jiraMetricItem}>
+                        <span className={`${styles.dot} ${styles.dotWarning}`} />
+                        <div>
+                          <span className={styles.jiraMetricLabel}>Pendientes de Jira</span>
+                          <strong className={styles.jiraMetricVal}>
+                            {metricsResult.metrics.pending_jira_hours} hs ({metricsResult.metrics.pending_jira_count} logs)
+                          </strong>
                         </div>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
+                      </div>
+                    </div>
 
-              {metricsResult.status === "error" && (
-                <div className={styles.errorCardMini}>
-                  <p className={styles.errorTextMini}>
-                    {metricsResult.error || "Hubo un problema al cargar las métricas de horas."}
-                  </p>
+                    <div className={styles.progressContainer}>
+                      <div
+                        className={styles.progressBar}
+                        style={{ width: `${metricsResult.metrics.jira_loaded_percentage}%` }}
+                      />
+                    </div>
+                    <div className={styles.progressDetails}>
+                      <span>{metricsResult.metrics.jira_loaded_percentage}% completado</span>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            <div className={styles.actionsSection}>
-              <h2 className={styles.actionsSectionTitle}>Módulos</h2>
-              <div className={styles.actionsGrid}>
-                <Link href="/registros/nuevo" className={`${styles.actionCard} ${styles.actionLink}`}>
-                  <span className={styles.actionTitle}>Registrar horas</span>
-                  <p className={styles.actionDescription}>
-                    Carga tus horas trabajadas diarias en el sistema.
-                  </p>
-                </Link>
-                <Link href="/registros" className={`${styles.actionCard} ${styles.actionLink}`}>
-                  <span className={styles.actionTitle}>Ver registros</span>
-                  <p className={styles.actionDescription}>
-                    Visualiza y gestiona tu historial de horas cargadas.
-                  </p>
-                </Link>
-                <Link href="/pendientes-jira" className={`${styles.actionCard} ${styles.actionLink}`}>
-                  <span className={styles.actionTitle}>Pendientes Jira</span>
-                  <p className={styles.actionDescription}>
-                    Revisa qué horas faltan subir a tus tareas de Jira.
-                  </p>
-                </Link>
+                {/* 3. Gráfico de barras diario */}
+                <div className={`${styles.card} ${styles.fullWidthCard}`}>
+                  <h2 className={styles.cardTitle}>Horas trabajadas por día</h2>
+                  <div className={styles.chartScroll}>
+                    <div className={styles.barChart}>
+                      {metricsResult.metrics.daily_series.map((day) => {
+                        const dayNum = day.date.split("-")[2];
+                        const maxDailyHours = Math.max(
+                          ...metricsResult.metrics!.daily_series.map((d) => d.hours),
+                          8
+                        );
+                        const heightPercent = (day.hours / maxDailyHours) * 100;
+
+                        return (
+                          <div
+                            key={day.date}
+                            className={styles.barColumn}
+                            title={`${day.date}: ${day.hours} hs`}
+                          >
+                            <div className={styles.barWrapper}>
+                              <div
+                                className={`${styles.bar} ${day.hours > 0 ? styles.barActive : ""}`}
+                                style={{ height: `${heightPercent}%` }}
+                              />
+                            </div>
+                            <span className={styles.barLabel}>{Number(dayNum)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Desglose para admin por desarrollador */}
+                {metricsResult.metrics.breakdown && (
+                  <div className={`${styles.card} ${styles.fullWidthCard}`}>
+                    <h2 className={styles.cardTitle}>Desglose por Desarrollador</h2>
+                    <div className={styles.breakdownGrid}>
+                      <div className={styles.breakdownCard}>
+                        <div className={styles.breakdownHeader}>
+                          <span className={styles.breakdownDevName}>dev (Admin)</span>
+                          <span className={`${styles.badge} ${styles.badgeDev}`}>dev</span>
+                        </div>
+                        <div className={styles.breakdownRow}>
+                          <span className={styles.breakdownLabel}>Horas totales:</span>
+                          <strong className={styles.breakdownValue}>
+                            {metricsResult.metrics.breakdown.dev.total_hours} hs
+                          </strong>
+                        </div>
+                        <div className={styles.breakdownRow}>
+                          <span className={styles.breakdownLabel}>Pendientes Jira:</span>
+                          <strong className={styles.breakdownValue}>
+                            {metricsResult.metrics.breakdown.dev.pending_jira_count}
+                          </strong>
+                        </div>
+                      </div>
+                      <div className={styles.breakdownCard}>
+                        <div className={styles.breakdownHeader}>
+                          <span className={styles.breakdownDevName}>compa (Usuario)</span>
+                          <span className={`${styles.badge} ${styles.badgeCompa}`}>compa</span>
+                        </div>
+                        <div className={styles.breakdownRow}>
+                          <span className={styles.breakdownLabel}>Horas totales:</span>
+                          <strong className={styles.breakdownValue}>
+                            {metricsResult.metrics.breakdown.compa.total_hours} hs
+                          </strong>
+                        </div>
+                        <div className={styles.breakdownRow}>
+                          <span className={styles.breakdownLabel}>Pendientes Jira:</span>
+                          <strong className={styles.breakdownValue}>
+                            {metricsResult.metrics.breakdown.compa.pending_jira_count}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </>
         )}
 
-        {result.status === "not_found" && (
-          <div className={`${styles.alertCard} ${styles.alertCardWarning}`}>
-            <h2 className={styles.alertTitle}>Perfil no configurado</h2>
-            <p className={styles.alertDescription}>
-              Tu sesión está activa, pero no se ha encontrado un perfil correspondiente en la tabla{" "}
-              <strong>profiles</strong> de Supabase. Comunícate con el administrador para registrar tu usuario.
+        {metricsResult.status === "error" && (
+          <div className={styles.errorCard}>
+            <p className={styles.errorText}>
+              {metricsResult.error || "Hubo un problema al cargar las métricas de horas."}
             </p>
           </div>
         )}
-
-        {result.status === "error" && (
-          <div className={`${styles.alertCard} ${styles.alertCardError}`}>
-            <h2 className={styles.alertTitle}>Error de conexión</h2>
-            <p className={styles.alertDescription}>
-              {result.error ||
-                "Hubo un problema al cargar la información de tu perfil. Por favor, intenta de nuevo más tarde."}
-            </p>
-          </div>
-        )}
-      </section>
-    </main>
+      </div>
+    </AppShell>
   );
 }
-
-

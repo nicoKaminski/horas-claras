@@ -14,6 +14,8 @@ export interface WorkLogsFilters {
   from?: string;
   to?: string;
   q?: string;
+  month?: string | number;
+  year?: string | number;
 }
 
 export async function getWorkLogs(filters?: WorkLogsFilters): Promise<WorkLogsFetchResult> {
@@ -67,6 +69,19 @@ export async function getWorkLogs(filters?: WorkLogsFilters): Promise<WorkLogsFe
       const normTo = normalizeDate(filters.to);
       if (normTo) {
         query = query.lte("date", normTo);
+      }
+    }
+
+    // 4. Filtrar por mes/año seleccionado
+    if (filters?.month && filters?.year) {
+      const m = Number(filters.month);
+      const y = Number(filters.year);
+      if (!isNaN(m) && !isNaN(y) && m >= 1 && m <= 12) {
+        const startDate = new Date(y, m - 1, 1);
+        const endDate = new Date(y, m, 0);
+        const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-01`;
+        const endStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
+        query = query.gte("date", startStr).lte("date", endStr);
       }
     }
 

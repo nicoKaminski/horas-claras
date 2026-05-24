@@ -3,9 +3,7 @@
   display: grid;
   place-items: center;
   padding: 48px 24px;
-  background:
-    linear-gradient(135deg, rgba(31, 111, 235, 0.08), transparent 42%),
-    #f7f9fc;
+  background-color: var(--bg-primary);
 }
 
 .card {
@@ -15,28 +13,29 @@
   flex-direction: column;
   gap: 24px;
   padding: 48px;
-  border: 1px solid #dbe3ef;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 24px 70px rgba(20, 33, 61, 0.08);
-  color: #182033;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow);
+  color: var(--text-primary);
 }
 
 .header {
-  border-bottom: 1px solid #edf1f7;
+  border-bottom: 1px solid var(--border);
   padding-bottom: 16px;
 }
 
 .title {
-  font-size: 30px;
-  font-weight: 760;
-  color: #101828;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
   margin-bottom: 8px;
 }
 
 .subtitle {
-  font-size: 15px;
-  color: #64748b;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 600px) {

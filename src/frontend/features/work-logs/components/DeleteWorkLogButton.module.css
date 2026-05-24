@@ -1,26 +1,24 @@
-.form {
-  display: inline-block;
-  margin: 0;
-}
-
 .button {
-  background-color: #fef2f2;
-  color: #ef4444;
-  border: 1px solid #fecaca;
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .button:hover:not(:disabled) {
-  background-color: #fee2e2;
-  border-color: #f87171;
-  color: #dc2626;
+  background-color: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
 }
 
 .button:disabled {
@@ -28,9 +26,67 @@
   cursor: not-allowed;
 }
 
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.warningText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.confirmBtn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--danger);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
 .error {
-  font-size: 12px;
-  color: #ef4444;
-  margin-top: 4px;
-  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+  margin-top: 8px;
 }

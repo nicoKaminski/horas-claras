@@ -18,6 +18,7 @@ interface WorkLogFormProps {
   };
   workLogId?: string;
   isLoadedInJira?: boolean;
+  onCancel?: () => void;
 }
 
 const formatTimeForInput = (timeStr?: string | null) => {
@@ -35,6 +36,7 @@ export default function WorkLogForm({
   initialValues = {},
   workLogId,
   isLoadedInJira = false,
+  onCancel,
 }: WorkLogFormProps) {
   const isEdit = mode === "edit";
   const actionToUse = isEdit ? updateWorkLogAction : createWorkLogAction;
@@ -262,9 +264,20 @@ export default function WorkLogForm({
 
       {/* 7. Acciones */}
       <div className={styles.actions}>
-        <Link href="/registros" className={styles.buttonCancel}>
-          Cancelar
-        </Link>
+        {onCancel ? (
+          <button
+            type="button"
+            className={styles.buttonCancel}
+            onClick={onCancel}
+            disabled={isPending}
+          >
+            Cancelar
+          </button>
+        ) : (
+          <Link href="/registros" className={styles.buttonCancel}>
+            Cancelar
+          </Link>
+        )}
         <button
           type="submit"
           className={styles.buttonSubmit}

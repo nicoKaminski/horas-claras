@@ -24,6 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'night':'light');document.documentElement.setAttribute('data-theme',t);})()`,
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

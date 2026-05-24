@@ -1,6 +1,45 @@
 :root {
-  --background: #f7f9fc;
-  --foreground: #171717;
+  --bg-primary: #f7f9fc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --border: #dbe3ef;
+  --text-primary: #101828;
+  --text-secondary: #526173;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --focus-ring: rgba(37, 99, 235, 0.4);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}
+
+[data-theme="night"] {
+  --bg-primary: #0b0f19;
+  --bg-surface: #161f30;
+  --bg-surface-elevated: #1f2b44;
+  --border: #2e3d5c;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.15);
+  --warning: #fb923c;
+  --warning-bg: rgba(251, 146, 60, 0.15);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.15);
+  --focus-ring: rgba(59, 130, 246, 0.5);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
 }
 
 html {
