@@ -30,20 +30,39 @@ Perfiles esperados para el MVP:
 
 Estos perfiles se crean manualmente para desarrollo, usando los IDs reales generados por Supabase Auth en el proyecto local o de prueba. No versionar UUIDs reales.
 
-## Migracion inicial
+## Migraciones
 
-La migracion inicial vive en:
+Las migraciones viven en:
 
 ```txt
-supabase/migrations/001_initial_schema.sql
+supabase/migrations/
+├─ 001_initial_schema.sql
+└─ 002_monthly_hourly_rates.sql
 ```
 
-Esa migracion define el esquema base de Horas Claras y se aplica manualmente en Supabase. Incluye las tablas:
+Ambas deben aplicarse manualmente en Supabase, en orden.
 
-- `profiles`
-- `work_logs`
+### 001_initial_schema.sql
 
-Tambien define indices, triggers de `updated_at`, funciones auxiliares, policies RLS y grants para usuarios autenticados.
+Define el esquema base de Horas Claras. Incluye:
+
+- tabla `profiles`
+- tabla `work_logs`
+- índices
+- función `set_updated_at` y triggers de `updated_at`
+- funciones auxiliares: `get_current_user_role()`, `is_admin()`, `get_profile_developer_name(uuid)`, `prevent_non_admin_work_log_restricted_changes()`
+- RLS habilitado y policies de select, insert, update y delete para ambas tablas
+- grants para el rol `authenticated`
+
+### 002_monthly_hourly_rates.sql
+
+Agrega soporte de tarifas mensuales por desarrollador. Incluye:
+
+- tabla `monthly_hourly_rates`
+- índice por `developer_name`, `year`, `month`
+- trigger de `updated_at` (reutiliza `set_updated_at` de la migración 001)
+- RLS habilitado y policies de select para admin y usuario propio, insert y update solo para admin
+- grants: solo `SELECT`, `INSERT` y `UPDATE` para `authenticated`; `DELETE` no permitido
 
 ## Permisos y RLS
 
@@ -76,12 +95,14 @@ No subir secretos al repositorio. No usar `service_role` en frontend.
 
 ## Verificacion conceptual
 
-Despues de aplicar la migracion en Supabase, verificar conceptualmente que:
+Despues de aplicar ambas migraciones en Supabase, verificar conceptualmente que:
 
 - Existe la tabla `profiles`.
 - Existe la tabla `work_logs`.
-- RLS esta habilitado para las tablas protegidas.
-- Existen policies para lectura, creacion, edicion y borrado segun rol.
+- Existe la tabla `monthly_hourly_rates`.
+- RLS esta habilitado para las tres tablas.
+- Existen policies para lectura, creacion, edicion y borrado segun rol en `profiles` y `work_logs`.
+- Existen policies de acceso restringido en `monthly_hourly_rates`.
 - Existen funciones y triggers definidos por la migracion inicial.
 - Los perfiles manuales corresponden a `dev/admin` y `compa/user`.
 

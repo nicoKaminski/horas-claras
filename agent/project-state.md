@@ -2,9 +2,9 @@
 
 > Este documento es una ayuda de contexto, no una verdad absoluta.
 >
-> Antes de usarlo para implementar, el agente debe auditar el repo real, revisar el repomix o los archivos actuales, y consultar al developer si algo no coincide.
+> Antes de usarlo para implementar, el agente debe auditar el repo real, revisar los archivos actuales, y consultar al developer si algo no coincide.
 
-Última referencia conocida: auditoría inicial sobre un repomix del proyecto Horas Claras.
+Última referencia conocida: auditoría completa del repo en mayo 2026.
 
 ---
 
@@ -48,153 +48,190 @@ Decisiones cerradas:
 
 ---
 
-## 3. Estado observado en repo
-
-Según el repomix auditado, el repo contiene:
+## 3. Estructura real del repo
 
 ```txt
-AGENTS.md
-CLAUDE.md
-README.md
-package.json
-eslint.config.mjs
-next.config.ts
-tsconfig.json
-src/app/
-src/frontend/
-src/backend/
-src/shared/
-supabase/migrations/
-supabase/seed.sql
-docs/
+horas-claras/
+├─ public/
+│  ├─ faviconHorasClarasDark.png
+│  └─ logoHorasClarasDark.png
+├─ src/
+│  ├─ app/
+│  │  ├─ dashboard/         Página de dashboard (page.tsx + page.module.css)
+│  │  ├─ login/             Página de login (page.tsx + page.module.css)
+│  │  ├─ pendientes-jira/   Página de pendientes Jira (page.tsx + page.module.css)
+│  │  ├─ registros/
+│  │  │  ├─ [id]/           Edición de un registro específico
+│  │  │  └─ nuevo/          Creación de registro
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  └─ page.tsx           Redirige a /dashboard o /login según sesión
+│  ├─ frontend/
+│  │  ├─ components/
+│  │  │  ├─ app-shell/      AppShell.tsx + AppShell.module.css
+│  │  │  ├─ modal/          AppModal.tsx + AppModal.module.css
+│  │  │  └─ theme/          ThemeToggle.tsx + ThemeToggle.module.css
+│  │  ├─ features/
+│  │  │  ├─ auth/
+│  │  │  │  └─ components/  LoginForm, LogoutButton
+│  │  │  ├─ dashboard/
+│  │  │  │  └─ components/  DashboardFilters, MonthlyRateCard
+│  │  │  └─ work-logs/
+│  │  │     ├─ components/  DeleteWorkLogButton, MarkJiraLoadedButton,
+│  │  │     │               WorkLogForm, WorkLogsTable, Workspace
+│  │  │     ├─ hooks/       useWorkLogFilters, useWorkLogModals,
+│  │  │     │               useWorkLogsTableRows, useWorkspacePeriodNavigation
+│  │  │     └─ utils/       work-log-table.ts
+│  │  ├─ hooks/
+│  │  │  └─ useThemePreference.ts
+│  │  └─ styles/            (vacío por ahora)
+│  ├─ backend/
+│  │  ├─ auth/              actions.ts, get-current-session.ts
+│  │  ├─ monthly-rates/     actions.ts, get-monthly-rates.ts
+│  │  ├─ profiles/          get-current-profile.ts
+│  │  ├─ supabase/          browser.ts, server.ts, env.ts, index.ts
+│  │  └─ work-logs/         actions.ts, get-dashboard-metrics.ts,
+│  │                        get-pending-jira-work-logs.ts, get-work-log-by-id.ts,
+│  │                        get-work-logs.ts
+│  └─ shared/
+│     ├─ constants/         profile-labels.ts
+│     ├─ types/             dashboard.ts, monthly-rate.ts, profile.ts, work-log.ts
+│     ├─ utils/             (vacío)
+│     └─ validations/       work-log.ts
+├─ supabase/
+│  ├─ migrations/
+│  │  ├─ 001_initial_schema.sql
+│  │  └─ 002_monthly_hourly_rates.sql
+│  └─ seed.sql
+├─ docs/
+├─ agent/
+├─ .agents/skills/
+├─ .env.example
+├─ .gitignore
+├─ AGENTS.md
+├─ CLAUDE.md
+├─ package.json
+└─ README.md
 ```
 
-También existen carpetas base con `.gitkeep` para preparar módulos futuros.
+---
+
+## 4. Implementado y verificado en archivos
+
+Estado real observado en el repo:
+
+### Infraestructura y configuración
+- Proyecto Next.js 16.2.6 con React 19, TypeScript estricto.
+- Fuentes: Geist Sans y Geist Mono (next/font/google).
+- Favicon real: `faviconHorasClarasDark.png`.
+- Logo real: `logoHorasClarasDark.png`.
+- Variables de entorno documentadas en `.env.example`.
+- `.gitignore` configurado (`.env.local` ignorado, `.env.example` versionado).
+
+### Supabase
+- Clientes browser y server implementados en `src/backend/supabase/` usando `@supabase/ssr`.
+- Validación segura de variables de entorno en `env.ts`.
+- Migración `001_initial_schema.sql`: tablas `profiles` y `work_logs`, índices, triggers, funciones auxiliares, RLS y policies.
+- Migración `002_monthly_hourly_rates.sql`: tabla `monthly_hourly_rates`, índice, trigger, RLS y policies.
+
+### Autenticación y permisos
+- Login con email y password vía Supabase Auth.
+- Logout implementado.
+- Lectura de sesión activa en server-side.
+- Redirección automática: `/` redirige a `/dashboard` si hay sesión, a `/login` si no.
+- Rutas privadas protegidas.
+- Identidad visible: `dev` mostrado como `dev-admin`, `compa` mostrado como `dev-user`.
+- Mapeo centralizado en `src/shared/constants/profile-labels.ts`.
+
+### CRUD de registros de horas
+- Formulario de creación y edición (`WorkLogForm`).
+- Listado de registros con tabla (`WorkLogsTable`).
+- Eliminación de registros (`DeleteWorkLogButton`).
+- Marcado como cargado en Jira (`MarkJiraLoadedButton`), solo para `dev-admin`.
+- Server actions en `src/backend/work-logs/actions.ts`.
+
+### Workspace y filtros
+- Componente `Workspace` centralizado con:
+  - buscador de texto libre por tarea y descripción;
+  - filtro por estado Jira (pendientes / cargados / todos);
+  - filtro por desarrollador;
+  - filtro por rango de fechas;
+  - navegación por período (mes anterior / mes siguiente).
+- Hooks extraídos: `useWorkLogFilters`, `useWorkLogModals`, `useWorkLogsTableRows`, `useWorkspacePeriodNavigation`.
+
+### Vista de pendientes Jira
+- Página `/pendientes-jira` con listado de registros sin cargar en Jira.
+- Marcado de registros disponible solo para `dev-admin`.
+
+### Dashboard
+- Página `/dashboard` con:
+  - filtros de período y desarrollador (`DashboardFilters`);
+  - métricas: total horas, total registros, pendientes Jira, cargados Jira, promedio por registro, porcentaje de carga, top día;
+  - gráfico de barras diario (CSS/SVG nativo, sin librería externa);
+  - desglose por desarrollador;
+  - tarjetas de tarifa y monto a cobrar (`MonthlyRateCard`) con edición inline para admin.
+
+### Tarifas mensuales
+- Tabla `monthly_hourly_rates` en base de datos.
+- `dev-admin` puede crear y editar tarifas por desarrollador, año y mes.
+- `dev-user` puede ver su propia tarifa.
+- Monto a cobrar calculado: horas trabajadas × tarifa configurada.
+- Estado "Sin tarifa configurada" mostrado si no existe registro para ese período.
+
+### Tema claro/oscuro
+- Soporte de tema `light` / `night` con `data-theme` en `<html>`.
+- Persistencia en `localStorage`.
+- Detección de preferencia del sistema.
+- Prevención de flash de hidratación mediante script inline en `layout.tsx`.
+- Hook `useThemePreference` en `src/frontend/hooks/`.
+- Componente `ThemeToggle` en `src/frontend/components/theme/`.
+
+### AppShell y navegación
+- Componente `AppShell` con navegación lateral responsive.
+- Muestra identidad del usuario logueado.
+- Incluye botón de tema y `LogoutButton`.
+
+### Branding
+- Logo y favicon reales aplicados (archivos PNG en `public/`).
+- Metadata configurada en `layout.tsx`.
 
 ---
 
-## 4. Implementado o presente en archivos
+## 5. Hitos por estado
 
-Estado observado:
+### Completado
+- Infraestructura y configuración base.
+- Clientes Supabase (browser y server).
+- Autenticación: login, logout, rutas protegidas.
+- Esquema de base de datos: migraciones 001 y 002.
+- CRUD de registros de horas.
+- Vista de pendientes Jira y marcado.
+- Workspace con búsqueda, filtros y navegación de período.
+- Dashboard con métricas reales y gráfico.
+- Tarifas mensuales por desarrollador.
+- Temas claro/oscuro con persistencia.
+- AppShell y navegación.
+- Branding con logo y favicon reales.
+- Documentación (README, roadmap, setup, Supabase, decisiones, carga histórica).
 
-- Proyecto Next.js inicial creado.
-- Home mínima en `src/app/page.tsx`.
-- Estilos base en `src/app/globals.css`.
-- Estilos de landing/home en `src/app/page.module.css`.
-- Metadata de la app configurada como Horas Claras.
-- Estructura `src/frontend`, `src/backend`, `src/shared` creada con `.gitkeep`.
-- Carpeta `supabase/migrations` creada.
-- Migración inicial `001_initial_schema.sql` presente.
-- `supabase/seed.sql` presente como placeholder.
-- `AGENTS.md` presente con reglas iniciales.
-- `CLAUDE.md` referencia `@AGENTS.md`.
-
----
-
-## 5. Estado real de implementaciones
-
-Verificación del estado actual:
-
-- **Proyecto Supabase e infraestructura**: Creado y configurado.
-- **Esquema de Base de Datos**: Migraciones `001_initial_schema.sql` y `002_monthly_hourly_rates.sql` definidas. Tablas `profiles`, `work_logs` y `monthly_hourly_rates` creadas.
-- **Seguridad**: RLS habilitado y policies de acceso definidas.
-- **Autenticación**: Login y logout por Supabase Auth integrado.
-- **Clientes Supabase**: Clientes browser y server-side implementados con SSR.
-- **Funcionalidades de Horas**: CRUD completo de registros de horas y vista de pendientes Jira implementados.
-- **Tarifas y Cobros**: Soporte para configurar y visualizar tarifas por hora por desarrollador, mes y año. Visualización del total a cobrar para el mes seleccionado, controlada por roles (`dev-admin` puede editar todas, `dev-user` solo puede leer la propia).
-- **Dashboard**: Panel interactivo con estadísticas, gráfico de barras diario, desglose de desarrolladores y tarjetas de tarifas/cobros implementado.
-- **Filtros**: Workspace con buscador de texto libre, filtros de Jira, desarrollador y rangos de fechas.
-- **Branding**: Branding real aplicado en login y AppShell con logos, favicons específicos de tema, y corrección de warnings de hidratación por tema.
-- **Documentación**: README, roadmap, decisiones y setup local actualizados. Carga histórica manual documentada en `docs/carga-historica.md`.
-
+### Pendiente
+- Deploy en Vercel (pendiente de conexión y validación del developer).
 
 ---
 
-## 6. Observaciones técnicas importantes
+## 6. Observaciones técnicas
 
-El README observado todavía parece ser el README default generado por Next.js. Debe actualizarse antes de presentar el proyecto como portfolio o entregarlo como documentación real.
-
-El `package.json` observado incluye scripts básicos:
-
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-```
-
-No asumir que existe `npm run typecheck` si no aparece en `package.json`.
-
-Si todavía no existen dependencias de Supabase, no escribir imports de Supabase hasta instalar/documentar la dependencia o recibir confirmación del developer.
+- `src/frontend/styles/` existe pero está vacío. Los estilos viven en los CSS Modules junto a cada componente.
+- `src/shared/utils/` existe pero está vacío.
+- `supabase/seed.sql` existe como placeholder sin datos reales.
+- No existe script `npm run typecheck` en `package.json`. Los scripts disponibles son: `dev`, `build`, `start`, `lint`.
+- El diseño usa Geist Sans y Geist Mono vía `next/font/google`.
+- `react-icons` está instalado como dependencia (versión 5.x).
+- El tema `night` (modo oscuro) usa el valor `night` en `localStorage` y `data-theme`, no `dark`.
 
 ---
 
-## 7. Migración inicial observada
-
-Existe una migración inicial que define conceptualmente:
-
-- `public.profiles`;
-- `public.work_logs`;
-- índices;
-- función `set_updated_at`;
-- funciones para rol/admin;
-- trigger para cambios restringidos;
-- RLS;
-- policies de select/insert/update/delete;
-- grants.
-
-Esta migración debe auditarse antes de aplicarse o modificarse.
-
-Preguntas a verificar:
-
-- ¿La migración ya fue aplicada en Supabase?
-- ¿Las funciones `security definer` son suficientes y seguras?
-- ¿Las policies cubren exactamente el flujo `dev`/`compa`?
-- ¿Hay algún problema con inserts de perfiles iniciales?
-- ¿Cómo se crearán `dev` y `compa` sin usar datos reales en seed?
-
----
-
-## 8. Hitos tentativos
-
-Los hitos previos pueden estar desactualizados. Usarlos solo como guía.
-
-### Hito A — Preparación manual / infraestructura
-
-- Crear/verificar repo GitHub.
-- Verificar proyecto Next.js base.
-- Crear proyecto Supabase.
-- Configurar Supabase Auth.
-- Crear usuarios iniciales.
-- Aplicar migraciones.
-- Configurar variables locales.
-- Crear `.env.example`.
-- Configurar Vercel.
-- Hacer deploy inicial.
-
-### Hito B — Construcción técnica con agente
-
-- Auditoría real del repo.
-- Restaurar/confirmar base mínima Next.js.
-- Ordenar estructura interna.
-- Definir tipos base.
-- Crear/validar migración SQL inicial.
-- Crear cliente Supabase browser/server.
-- Implementar login.
-- Proteger rutas privadas.
-- Crear/listar/editar/eliminar registros.
-- Agregar filtros.
-- Crear vista de pendientes Jira.
-- Marcar cargado en Jira.
-- Dashboard.
-- UX responsive.
-- Documentación.
-- QA local.
-- Deploy Vercel.
-
----
-
-## 9. Regla para agentes
+## 7. Regla para agentes
 
 Antes de implementar, el agente debe responder internamente:
 

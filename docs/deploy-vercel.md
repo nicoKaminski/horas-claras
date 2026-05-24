@@ -48,7 +48,7 @@ Antes de considerar listo un deploy publico:
 - Signup publico revisado segun el entorno.
 - Usuarios `dev` y `compa` creados manualmente si el entorno los requiere.
 - Perfiles `dev/admin` y `compa/user` creados manualmente.
-- Migracion inicial aplicada en Supabase.
+- Migraciones aplicadas en Supabase en orden (`001_initial_schema.sql`, `002_monthly_hourly_rates.sql`).
 - RLS habilitado y policies verificadas.
 - `npm run build` ejecuta correctamente.
 - Redeploy realizado despues de cambios en variables de entorno.

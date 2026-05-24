@@ -62,18 +62,22 @@ Detalle en [docs/decisiones.md](./docs/decisiones.md) y [docs/supabase.md](./doc
 
 ```txt
 horas-claras/
+├── public/             Branding: logo y favicon
 ├── src/
-│   ├── app/        Rutas, layouts y paginas de Next.js
-│   ├── frontend/   Componentes visuales y features de UI
-│   ├── backend/    Logica server-side y helpers seguros
-│   └── shared/     Tipos, constantes y utilidades compartidas
+│   ├── app/            Rutas, layouts y paginas de Next.js
+│   ├── frontend/
+│   │   ├── components/ Componentes reutilizables (AppShell, Modal, ThemeToggle)
+│   │   ├── features/   Features por dominio (auth, dashboard, work-logs)
+│   │   └── hooks/      Hooks globales de frontend (useThemePreference)
+│   ├── backend/        Logica server-side y helpers seguros
+│   └── shared/         Tipos, constantes y utilidades compartidas
 ├── supabase/
-│   ├── migrations/ Migraciones SQL versionadas
-│   └── seed.sql    Seed o notas sin datos sensibles
-├── docs/           Documentacion detallada del proyecto
-├── agent/          Documentacion auxiliar para agentes
-├── AGENTS.md       Reglas obligatorias para agentes
-└── README.md       Portada del repo
+│   ├── migrations/     Migraciones SQL versionadas (001, 002)
+│   └── seed.sql        Seed o notas sin datos sensibles
+├── docs/               Documentacion detallada del proyecto
+├── agent/              Documentacion auxiliar para agentes
+├── AGENTS.md           Reglas obligatorias para agentes
+└── README.md           Portada del repo
 ```
 
 ## Setup rapido
