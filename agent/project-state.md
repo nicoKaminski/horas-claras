@@ -91,26 +91,20 @@ Estado observado:
 
 ---
 
-## 5. Puntos que no deben darse por implementados
+## 5. Estado real de implementaciones
 
-No asumir como completado sin verificar:
+Verificación del estado actual:
 
-- Proyecto Supabase creado.
-- Migración aplicada en Supabase.
-- Tablas `profiles` y `work_logs` existentes en la base real.
-- RLS activo en la base real.
-- Policies funcionando en Supabase real.
-- Usuarios `dev` y `compa` creados en Supabase Auth.
-- Variables `.env.local` configuradas.
-- `.env.example` creado.
-- Dependencias de Supabase instaladas.
-- Clientes Supabase browser/server creados.
-- Login implementado.
-- Dashboard implementado.
-- CRUD de registros implementado.
-- Vista de pendientes Jira implementada.
-- Deploy Vercel configurado.
-- README actualizado al proyecto real.
+- **Proyecto Supabase e infraestructura**: Creado y configurado.
+- **Esquema de Base de Datos**: Migración `001_initial_schema.sql` definida y aplicada en la base real. Tablas `profiles` y `work_logs` creadas.
+- **Seguridad**: RLS habilitado y policies de acceso definidas.
+- **Autenticación**: Login y logout por Supabase Auth integrado.
+- **Clientes Supabase**: Clientes browser y server-side implementados con SSR.
+- **Funcionalidades de Horas**: CRUD completo de registros de horas y vista de pendientes Jira implementados.
+- **Dashboard**: Panel interactivo con estadísticas, gráfico de barras diario y desglose de desarrolladores implementado.
+- **Filtros**: Workspace con buscador de texto libre, filtros de Jira, desarrollador y rangos de fechas.
+- **Branding**: Branding real aplicado en login y AppShell con logos, favicons específicos de tema, y corrección de warnings de hidratación por tema.
+- **Documentación**: README, roadmap, decisiones y setup local actualizados. Carga histórica manual documentada en `docs/carga-historica.md`.
 
 ---
 

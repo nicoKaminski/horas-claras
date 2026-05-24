@@ -11,23 +11,17 @@ Horas Claras tiene un objetivo doble:
 
 ## Estado actual
 
-Presente en el repositorio:
+Todas las funcionalidades del MVP se encuentran completamente implementadas y listas para producción:
 
-- Proyecto Next.js con estructura base.
-- Home inicial personalizada.
-- Estructura interna preparada en `src/app`, `src/frontend`, `src/backend` y `src/shared`.
-- Migracion inicial Supabase en `supabase/migrations/001_initial_schema.sql`.
-- Documentacion base para setup, Supabase, deploy, decisiones y agentes.
-
-Pendiente en codigo:
-
-- Integracion del SDK de Supabase.
-- Login con email y password.
-- Rutas privadas.
-- CRUD de registros de horas.
-- Vista de pendientes Jira y marcado como cargado.
-- Dashboard, filtros y busqueda.
-- Deploy en Vercel.
+- Integración completa con Supabase Auth y Database.
+- Login y logout con email y password.
+- Rutas privadas y control de acceso por roles (`admin`/`user`).
+- CRUD completo de registros de horas de trabajo.
+- Vista de pendientes Jira y marcado como cargado (solo administradores).
+- Dashboard con estadísticas, barra de progreso y gráficos diarios interactivos.
+- Workspace centralizado con buscador de texto, filtros avanzados y rango de fechas.
+- Soporte integrado de temas Claro / Oscuro (persistente en localStorage).
+- Branding oficial con logos y favicons reales.
 
 Ver el detalle en [docs/roadmap.md](./docs/roadmap.md).
 
@@ -44,12 +38,12 @@ Ver el detalle en [docs/roadmap.md](./docs/roadmap.md).
 
 ## Funcionalidades del MVP
 
-- Login con email y password mediante Supabase Auth. Pendiente en codigo.
-- Registro de horas de trabajo. Pendiente en codigo.
-- Listado, edicion y eliminacion de registros. Pendiente en codigo.
-- Vista de registros pendientes de carga en Jira. Pendiente en codigo.
-- Marcado de registros como cargados en Jira, solo para `dev`. Pendiente en codigo.
-- Dashboard con resumen y metricas. Pendiente en codigo.
+- Login con email y password mediante Supabase Auth.
+- Registro de horas de trabajo.
+- Listado, edicion y eliminacion de registros.
+- Vista de registros pendientes de carga en Jira.
+- Marcado de registros como cargados en Jira, solo para `dev` (mostrado como `dev-admin`).
+- Dashboard con resumen y metricas.
 
 ## Modelo de permisos
 
@@ -128,6 +122,7 @@ Detalle en [docs/setup-local.md](./docs/setup-local.md) y [docs/supabase.md](./d
 
 - [Setup local](./docs/setup-local.md)
 - [Supabase](./docs/supabase.md)
+- [Carga histórica](./docs/carga-historica.md)
 - [Deploy en Vercel](./docs/deploy-vercel.md)
 - [Decisiones](./docs/decisiones.md)
 - [Roadmap](./docs/roadmap.md)

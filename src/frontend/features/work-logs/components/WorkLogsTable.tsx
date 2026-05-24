@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FiEdit2, FiCheck, FiClock } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
+import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import MarkJiraLoadedButton from "./MarkJiraLoadedButton";
 import DeleteWorkLogButton from "./DeleteWorkLogButton";
 import styles from "./WorkLogsTable.module.css";
@@ -95,7 +96,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                         log.developer_name === "dev" ? styles.badgeDev : styles.badgeCompa
                       }`}
                     >
-                      {log.developer_name}
+                      {getDeveloperDisplayName(log.developer_name)}
                     </span>
                   </td>
                   <td className={styles.timeCell}>
@@ -184,7 +185,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                       log.developer_name === "dev" ? styles.badgeDev : styles.badgeCompa
                     }`}
                   >
-                    {log.developer_name}
+                    {getDeveloperDisplayName(log.developer_name)}
                   </span>
                 </div>
                 <div className={styles.cardTimeRow}>

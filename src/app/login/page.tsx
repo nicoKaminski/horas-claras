@@ -21,12 +21,21 @@ export default async function LoginPage() {
       <header className={styles.header}>
         <ThemeToggle />
       </header>
-      
+
       <section className={styles.card} aria-labelledby="login-title">
-        <h1 id="login-title" className={styles.title}>Iniciar sesión</h1>
-        <p className={styles.subtitle}>
+        <div className={styles.logoContainer}>
+          <img
+            src="/logoHorasClarasDark.png"
+            alt="Horas Claras"
+            className={styles.logoImg}
+          />
+        </div>
+        <h1 id="login-title" className={styles.title}>
+          Iniciar sesión
+        </h1>
+        {/* <p className={styles.subtitle}>
           Ingresá tus credenciales para acceder a Horas Claras
-        </p>
+        </p> */}
         <LoginForm />
       </section>
     </main>

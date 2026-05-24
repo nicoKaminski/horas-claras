@@ -4,6 +4,7 @@ import { useActionState, useState, useRef } from "react";
 import Link from "next/link";
 import { createWorkLogAction, updateWorkLogAction } from "@/backend/work-logs/actions";
 import { Profile } from "@/shared/types/profile";
+import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import styles from "./WorkLogForm.module.css";
 
 interface WorkLogFormProps {
@@ -92,8 +93,8 @@ export default function WorkLogForm({
             defaultValue={defaultDevName}
             disabled={isPending}
           >
-            <option value="dev">dev</option>
-            <option value="compa">compa</option>
+            <option value="dev">{getDeveloperDisplayName("dev")}</option>
+            <option value="compa">{getDeveloperDisplayName("compa")}</option>
           </select>
           {state.errors?.general && (
             <p className={styles.fieldError} role="alert">
@@ -108,7 +109,7 @@ export default function WorkLogForm({
             type="text"
             id="developer_name_display"
             className={styles.input}
-            value={currentProfile.developer_name}
+            value={getDeveloperDisplayName(currentProfile.developer_name)}
             disabled
           />
           <input

@@ -6,10 +6,10 @@ Notas detalladas para configurar Supabase en Horas Claras.
 
 Horas Claras usa Supabase Auth con email y password.
 
-Para el MVP se espera trabajar con dos identidades visibles dentro de la app:
+Para el MVP se trabaja internamente con dos identidades de usuario:
 
-- `dev`
-- `compa`
+- `dev` (mostrado en la interfaz como `dev-admin`, con rol `admin`).
+- `compa` (mostrado en la interfaz como `dev-user`, con rol `user`).
 
 Los usuarios se crean manualmente desde Supabase Auth. No se deben documentar ni versionar emails reales, passwords reales, tokens ni claves privadas.
 
@@ -86,3 +86,7 @@ Despues de aplicar la migracion en Supabase, verificar conceptualmente que:
 - Los perfiles manuales corresponden a `dev/admin` y `compa/user`.
 
 No incluir en documentacion publica datos reales, emails reales, UUIDs reales ni valores sensibles del proyecto Supabase.
+
+## Carga Histórica Manual
+
+Se ha documentado un procedimiento seguro para la carga de datos históricos de horas en la base de datos de Supabase. Este procedimiento utiliza transacciones controladas con `ROLLBACK`/`COMMIT` y comprobaciones previas para evitar duplicados. Para más información, consulta la guía completa en [Carga Histórica Manual](./carga-historica.md).

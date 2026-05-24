@@ -4,47 +4,47 @@ Roadmap funcional del MVP de Horas Claras. Los items se mantienen como pendiente
 
 ## Fase 1: Integracion Supabase
 
-- [ ] Instalar dependencias SDK Supabase.
-- [ ] Crear cliente browser.
-- [ ] Crear cliente server.
-- [ ] Configurar variables locales.
-- [ ] Validar conexion con Supabase.
-- [ ] Validar RLS contra casos `dev` y `compa`.
+- [x] Instalar dependencias SDK Supabase.
+- [x] Crear cliente browser.
+- [x] Crear cliente server.
+- [x] Configurar variables locales.
+- [x] Validar conexion con Supabase.
+- [x] Validar RLS contra casos `dev` y `compa`.
 
 ## Fase 2: Autenticacion
 
-- [ ] Implementar login con email y password.
-- [ ] Implementar logout.
-- [ ] Leer sesion actual.
-- [ ] Proteger rutas privadas.
-- [ ] Mostrar identidad visible `dev` o `compa`.
+- [x] Implementar login con email y password.
+- [x] Implementar logout.
+- [x] Leer sesion actual.
+- [x] Proteger rutas privadas.
+- [x] Mostrar identidad visible `dev` o `compa` (mapeada a `dev-admin` o `dev-user` en UI).
 
 ## Fase 3: CRUD de registros
 
-- [ ] Crear formulario de registro de horas.
-- [ ] Listar registros.
-- [ ] Editar registros permitidos.
-- [ ] Eliminar registros permitidos.
-- [ ] Validar reglas de negocio en frontend y backend cuando corresponda.
-- [ ] Respetar restricciones de RLS.
+- [x] Crear formulario de registro de horas.
+- [x] Listar registros.
+- [x] Editar registros permitidos.
+- [x] Eliminar registros permitidos.
+- [x] Validar reglas de negocio en frontend y backend cuando corresponda.
+- [x] Respetar restricciones de RLS.
 
 ## Fase 4: Pendientes Jira / marcado Jira / filtros
 
-- [ ] Mostrar vista de registros pendientes de carga en Jira.
-- [ ] Permitir marcado como cargado en Jira solo para `dev`.
-- [ ] Filtrar por fecha.
-- [ ] Filtrar por usuario.
-- [ ] Filtrar por estado Jira.
-- [ ] Agregar busqueda por tarea o descripcion.
+- [x] Mostrar vista de registros pendientes de carga en Jira.
+- [x] Permitir marcado como cargado en Jira solo para `dev` (mostrado como `dev-admin`).
+- [x] Filtrar por fecha.
+- [x] Filtrar por usuario.
+- [x] Filtrar por estado Jira.
+- [x] Agregar busqueda por tarea o descripcion.
 
 ## Fase 5: Dashboard / UX
 
-- [ ] Crear dashboard de resumen.
-- [ ] Mostrar metricas basicas.
-- [ ] Agregar estados de carga, error y vacio.
-- [ ] Mejorar responsive.
-- [ ] Revisar accesibilidad basica.
-- [ ] Pulir UI para portfolio.
+- [x] Crear dashboard de resumen.
+- [x] Mostrar metricas basicas.
+- [x] Agregar estados de carga, error y vacio.
+- [x] Mejorar responsive.
+- [x] Revisar accesibilidad basica.
+- [x] Pulir UI para portfolio.
 
 ## Fase 6: Deploy
 

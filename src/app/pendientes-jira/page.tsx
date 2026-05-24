@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getPendingJiraWorkLogs } from "@/backend/work-logs/get-pending-jira-work-logs";
+import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import MarkJiraLoadedButton from "@/frontend/features/work-logs/components/MarkJiraLoadedButton";
 import DeleteWorkLogButton from "@/frontend/features/work-logs/components/DeleteWorkLogButton";
 import AppShell from "@/frontend/components/app-shell/AppShell";
@@ -94,7 +95,7 @@ export default async function PendientesJiraPage() {
                                 : styles.badgeCompa
                             }`}
                           >
-                            {log.developer_name}
+                            {getDeveloperDisplayName(log.developer_name)}
                           </span>
                         </div>
                       </div>

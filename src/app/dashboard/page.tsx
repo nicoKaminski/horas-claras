@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getDashboardMetrics } from "@/backend/work-logs/get-dashboard-metrics";
+import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import AppShell from "@/frontend/components/app-shell/AppShell";
 import DashboardFilters from "@/frontend/features/dashboard/components/DashboardFilters";
 import styles from "./page.module.css";
@@ -167,8 +168,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     <div className={styles.breakdownGrid}>
                       <div className={styles.breakdownCard}>
                         <div className={styles.breakdownHeader}>
-                          <span className={styles.breakdownDevName}>dev (Admin)</span>
-                          <span className={`${styles.badge} ${styles.badgeDev}`}>dev</span>
+                          <span className={styles.breakdownDevName}>{getDeveloperDisplayName("dev")} (Admin)</span>
+                          <span className={`${styles.badge} ${styles.badgeDev}`}>{getDeveloperDisplayName("dev")}</span>
                         </div>
                         <div className={styles.breakdownRow}>
                           <span className={styles.breakdownLabel}>Horas totales:</span>
@@ -185,8 +186,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       </div>
                       <div className={styles.breakdownCard}>
                         <div className={styles.breakdownHeader}>
-                          <span className={styles.breakdownDevName}>compa (Usuario)</span>
-                          <span className={`${styles.badge} ${styles.badgeCompa}`}>compa</span>
+                          <span className={styles.breakdownDevName}>{getDeveloperDisplayName("compa")} (Usuario)</span>
+                          <span className={`${styles.badge} ${styles.badgeCompa}`}>{getDeveloperDisplayName("compa")}</span>
                         </div>
                         <div className={styles.breakdownRow}>
                           <span className={styles.breakdownLabel}>Horas totales:</span>

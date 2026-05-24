@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FiPlus, FiSearch, FiRefreshCw } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
+import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import AppModal from "@/frontend/components/modal/AppModal";
 import WorkLogForm from "./WorkLogForm";
 import WorkLogsTable from "./WorkLogsTable";
@@ -207,8 +208,8 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
                 className={styles.select}
               >
                 <option value="todos">Todos</option>
-                <option value="dev">dev</option>
-                <option value="compa">compa</option>
+                <option value="dev">{getDeveloperDisplayName("dev")}</option>
+                <option value="compa">{getDeveloperDisplayName("compa")}</option>
               </select>
             </div>
           )}

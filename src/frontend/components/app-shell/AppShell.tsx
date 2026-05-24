@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FiClock, FiGrid, FiUser, FiMenu, FiX, FiLogOut } from "react-icons/fi";
 import { logoutAction } from "@/backend/auth/actions";
 import { Profile } from "@/shared/types/profile";
+import { getDeveloperDisplayName, getRoleDisplayName } from "@/shared/constants/profile-labels";
 import ThemeToggle from "../theme/ThemeToggle";
 import styles from "./AppShell.module.css";
 
@@ -24,7 +25,13 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
     <div className={styles.container}>
       {/* Mobile Top Bar */}
       <header className={styles.mobileHeader}>
-        <span className={styles.logoText}>Horas Claras</span>
+        <div className={styles.logoContainer}>
+          <img
+            src="/logoHorasClarasDark.png"
+            alt="Horas Claras"
+            className={styles.logoImg}
+          />
+        </div>
         <button
           type="button"
           onClick={toggleMobile}
@@ -38,7 +45,13 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
       {/* Sidebar navigation */}
       <aside className={`${styles.sidebar} ${mobileOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarHeader}>
-          <span className={styles.logoText}>Horas Claras</span>
+          <div className={styles.logoContainer}>
+            <img
+              src="/logoHorasClarasDark.png"
+              alt="Horas Claras"
+              className={styles.logoImg}
+            />
+          </div>
           <button type="button" onClick={closeMobile} className={styles.mobileClose} aria-label="Cerrar menú">
             <FiX size={20} />
           </button>
@@ -50,10 +63,10 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
             {profile.developer_name.substring(0, 2).toUpperCase()}
           </div>
           <div className={styles.profileDetails}>
-            <span className={styles.profileName}>{profile.developer_name}</span>
+            <span className={styles.profileName}>{getDeveloperDisplayName(profile.developer_name)}</span>
             <div className={styles.badgeRow}>
               <span className={`${styles.badge} ${profile.role === "admin" ? styles.adminBadge : styles.userBadge}`}>
-                {profile.role === "admin" ? "admin" : "user"}
+                {getRoleDisplayName(profile.role)}
               </span>
             </div>
           </div>

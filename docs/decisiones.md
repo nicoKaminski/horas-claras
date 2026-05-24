@@ -12,14 +12,16 @@ La separacion interna del codigo se hace dentro de `src`.
 
 ## Usuarios del MVP
 
-El MVP trabaja con dos usuarios visibles:
+El MVP trabaja internamente con dos identificadores de usuario (`username` / `developer_name`):
 
 - `dev`
 - `compa`
 
-`dev` representa al usuario administrador.
+`dev` representa al usuario administrador y se muestra en la interfaz (UI) como `dev-admin`.
 
-`compa` representa al usuario comun.
+`compa` representa al usuario común y se muestra en la interfaz (UI) como `dev-user`.
+
+Esto mantiene los valores de base de datos y políticas de seguridad (RLS) intactos mientras mejora el branding y la legibilidad en el frontend.
 
 ## Autenticacion
 

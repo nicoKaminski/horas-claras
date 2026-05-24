@@ -40,6 +40,19 @@
   letter-spacing: -0.5px;
 }
 
+.logoContainer {
+  display: flex;
+  align-items: center;
+  height: 96px;
+  max-width: 200px;
+}
+
+.logoImg {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
 .mobileClose {
   display: none;
 }
