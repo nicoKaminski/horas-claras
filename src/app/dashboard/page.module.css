@@ -28,18 +28,19 @@
 
 .contentGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
 }
 
 @media (min-width: 1024px) {
   .contentGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .fullWidthCard {
     grid-column: span 2;
   }
 }
+
 
 .metricsGrid {
   display: grid;
@@ -371,3 +372,143 @@
   font-size: 13px;
   color: var(--text-secondary);
 }
+
+@media (max-width: 600px) {
+  .dashboardContainer {
+    gap: 16px;
+  }
+
+  .header {
+    padding-bottom: 12px;
+    margin-bottom: 0;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .cardTitle {
+    font-size: 14px;
+    padding-bottom: 8px;
+    margin-bottom: 0;
+  }
+
+  .metricsGrid {
+    gap: 12px;
+  }
+
+  .metricCard {
+    padding: 12px 14px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .metricLabel {
+    font-size: 10px;
+  }
+
+  .metricValue {
+    font-size: 16px;
+  }
+
+  .jiraSection {
+    gap: 12px;
+  }
+
+  .jiraMetrics {
+    gap: 8px;
+  }
+
+  .jiraMetricItem {
+    gap: 8px;
+  }
+
+  .dot {
+    margin-top: 4px;
+  }
+
+  .jiraMetricLabel {
+    font-size: 11px;
+  }
+
+  .jiraMetricVal {
+    font-size: 13px;
+  }
+
+  .totalBanner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .totalBannerText {
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .totalBannerValue {
+    font-size: 16px;
+    text-align: right;
+  }
+
+  .totalBannerMissing {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .breakdownCard {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .breakdownHeader {
+    padding-bottom: 6px;
+  }
+
+  .breakdownDevName {
+    font-size: 13px;
+  }
+
+  .breakdownRow {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .metricCard {
+    padding: 10px;
+    gap: 4px;
+  }
+
+  .metricLabel {
+    font-size: 9px;
+  }
+
+  .metricValue {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 350px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .metricValue {
+    font-size: 16px;
+  }
+}
+
+

@@ -47,11 +47,10 @@ Roadmap funcional del MVP de Horas Claras. Los items se mantienen como pendiente
 - [x] Pulir UI para portfolio.
 - [x] Agregar soporte de tarifa mensual por desarrollador y total a cobrar en dashboard.
 
-
 ## Fase 6: Deploy
 
-- [ ] Conectar repositorio a Vercel.
-- [ ] Configurar variables de entorno publicas.
-- [ ] Ejecutar build de produccion.
-- [ ] Hacer deploy inicial.
-- [ ] Validar flujo basico en entorno publicado.
+- [x] Conectar repositorio a Vercel.
+- [x] Configurar variables de entorno publicas.
+- [x] Ejecutar build de produccion.
+- [x] Hacer deploy inicial.
+- [x] Validar flujo basico en entorno publicado.

@@ -252,6 +252,19 @@
     height: 64px;
   }
 
+  .mobileHeader .logoContainer {
+    height: 32px;
+    max-width: 120px;
+    display: flex;
+    align-items: center;
+  }
+
+  .mobileHeader .logoImg {
+    height: 100%;
+    width: auto;
+  }
+
+
   .menuToggle {
     background: none;
     border: none;
