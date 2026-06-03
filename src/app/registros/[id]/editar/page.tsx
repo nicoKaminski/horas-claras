@@ -64,6 +64,7 @@ export default async function EditarRegistroPage({ params }: EditarRegistroPageP
           mode="edit"
           workLogId={log.id}
           isLoadedInJira={log.jira_loaded}
+          workLogDeveloperName={log.developer_name}
           initialValues={{
             date: log.date,
             start_time: log.start_time,

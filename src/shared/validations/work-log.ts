@@ -1,3 +1,8 @@
+export const MAX_WORK_LOG_HOURS = 12;
+export const MAX_DAILY_WORK_LOG_HOURS = 20;
+export const MIN_VALID_YEAR = 2000;
+export const MAX_VALID_YEAR = 2100;
+
 export interface WorkLogFormValues {
   date: string;
   start_time: string;
@@ -25,7 +30,7 @@ export interface WorkLogValidationResult {
 }
 
 export function isValidCalendarDate(day: number, month: number, year: number): boolean {
-  if (year < 1900 || year > 2100) return false;
+  if (year < MIN_VALID_YEAR || year > MAX_VALID_YEAR) return false;
   if (month < 1 || month > 12) return false;
   if (day < 1) return false;
 
@@ -204,6 +209,9 @@ export function validateWorkLog(values: WorkLogFormValues): WorkLogValidationRes
       duration = calculateDurationHours(normalizedStart, normalizedEnd);
       if (duration <= 0) {
         errors.general = "La duración de las horas registradas debe ser mayor a 0.";
+        isValid = false;
+      } else if (duration > MAX_WORK_LOG_HOURS) {
+        errors.end_time = "Un registro no puede superar las 12 horas.";
         isValid = false;
       }
     }

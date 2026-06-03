@@ -38,7 +38,7 @@ export async function getWorkLogs(filters?: WorkLogsFilters): Promise<WorkLogsFe
 
     let query = supabase
       .from("work_logs")
-      .select("*");
+      .select("id, user_id, developer_name, created_by, date, start_time, end_time, duration_hours, task_title, description, jira_loaded, jira_loaded_at, created_at, updated_at");
 
     // 1. Filtrar por developer (solo admisible para admin, para user forzar su propio developer_name)
     if (filters?.developer && filters.developer !== "todos") {
@@ -73,16 +73,23 @@ export async function getWorkLogs(filters?: WorkLogsFilters): Promise<WorkLogsFe
     }
 
     // 4. Filtrar por mes/año seleccionado
-    if (filters?.month && filters?.year) {
-      const m = Number(filters.month);
-      const y = Number(filters.year);
-      if (!isNaN(m) && !isNaN(y) && m >= 1 && m <= 12) {
-        const startDate = new Date(y, m - 1, 1);
-        const endDate = new Date(y, m, 0);
-        const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-01`;
-        const endStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
-        query = query.gte("date", startStr).lte("date", endStr);
+    if (filters?.month !== undefined || filters?.year !== undefined) {
+      const now = new Date();
+      let m = filters.month !== undefined ? Number(filters.month) : now.getMonth() + 1;
+      let y = filters.year !== undefined ? Number(filters.year) : now.getFullYear();
+
+      if (isNaN(m) || m < 1 || m > 12) {
+        m = now.getMonth() + 1;
       }
+      if (isNaN(y) || y < 2000 || y > 2100) {
+        y = now.getFullYear();
+      }
+
+      const startDate = new Date(y, m - 1, 1);
+      const endDate = new Date(y, m, 0);
+      const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-01`;
+      const endStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
+      query = query.gte("date", startStr).lte("date", endStr);
     }
 
     // Ordenar por fecha desc y luego created_at desc

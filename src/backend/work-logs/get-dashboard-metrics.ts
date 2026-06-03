@@ -46,9 +46,18 @@ export async function getDashboardMetrics(
 
     // Calcular el rango del mes seleccionado o el actual
     const now = new Date();
-    const year = selectedYear !== undefined ? Number(selectedYear) : now.getFullYear();
-    const monthIndex = selectedMonth !== undefined ? Number(selectedMonth) - 1 : now.getMonth(); // 0-11
+    let year = selectedYear !== undefined ? Number(selectedYear) : now.getFullYear();
+    let month = selectedMonth !== undefined ? Number(selectedMonth) : now.getMonth() + 1;
 
+    // Validar y caer al mes/año actual en caso de valores inválidos o fuera de rango (2000-2100)
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      year = now.getFullYear();
+    }
+    if (isNaN(month) || month < 1 || month > 12) {
+      month = now.getMonth() + 1;
+    }
+
+    const monthIndex = month - 1;
     const startDate = new Date(year, monthIndex, 1);
     const endDate = new Date(year, monthIndex + 1, 0);
 

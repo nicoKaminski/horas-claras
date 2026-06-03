@@ -25,7 +25,7 @@ export async function getPendingJiraWorkLogs(): Promise<WorkLogsFetchResult> {
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("work_logs")
-      .select("*")
+      .select("id, user_id, developer_name, created_by, date, start_time, end_time, duration_hours, task_title, description, jira_loaded, jira_loaded_at, created_at, updated_at")
       .eq("jira_loaded", false)
       .order("date", { ascending: false })
       .order("created_at", { ascending: false });

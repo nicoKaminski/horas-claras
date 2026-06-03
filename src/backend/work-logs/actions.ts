@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/backend/supabase/server";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
-import { validateWorkLog, WorkLogFormValues } from "@/shared/validations/work-log";
+import { validateWorkLog, WorkLogFormValues, MAX_DAILY_WORK_LOG_HOURS } from "@/shared/validations/work-log";
 
 export interface WorkLogActionState {
   error?: string;
@@ -118,6 +118,26 @@ export async function createWorkLogAction(
     const endTimeDb = formatTimeForDb(validation.normalizedValues?.end_time || end_time);
     const dateDb = validation.normalizedValues?.date || date;
 
+    // Validar solapamiento y horas diarias acumuladas
+    const existingLogsResult = await getExistingWorkLogsForUserAndDate(supabase, targetUserId, dateDb);
+    if (existingLogsResult.status === "error") {
+      return {
+        error: "No se pudo validar la disponibilidad horaria. Intentá nuevamente.",
+      };
+    }
+    const existingLogs = existingLogsResult.logs;
+    if (checkTimeOverlap(startTimeDb, endTimeDb, existingLogs)) {
+      return {
+        error: "Ya existe un registro de horas que se superpone con ese horario.",
+      };
+    }
+    const dailyTotal = calculateDailyTotalHours(validation.duration, existingLogs);
+    if (dailyTotal > MAX_DAILY_WORK_LOG_HOURS) {
+      return {
+        error: "El total diario no puede superar las 20 horas.",
+      };
+    }
+
     // 3. Inserción en la base de datos
     const { error: insertError } = await supabase.from("work_logs").insert({
       user_id: targetUserId,
@@ -147,7 +167,27 @@ export async function createWorkLogAction(
   }
 
   if (shouldRedirect) {
-    redirect("/registros");
+    const searchParamsRaw = formData.get("search_params") as string;
+    let redirectUrl = "/registros";
+    if (searchParamsRaw) {
+      const parsed = new URLSearchParams(searchParamsRaw);
+      const month = parsed.get("month");
+      const year = parsed.get("year");
+      
+      const newParams = new URLSearchParams();
+      if (month && !isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= 12) {
+        newParams.set("month", month);
+      }
+      if (year && !isNaN(Number(year)) && Number(year) >= 2000 && Number(year) <= 2100) {
+        newParams.set("year", year);
+      }
+
+      const queryString = newParams.toString();
+      if (queryString) {
+        redirectUrl = `/registros?${queryString}`;
+      }
+    }
+    redirect(redirectUrl);
   }
 
   return {};
@@ -322,6 +362,26 @@ export async function updateWorkLogAction(
     const endTimeDb = formatTimeForDb(validation.normalizedValues?.end_time || end_time);
     const dateDb = validation.normalizedValues?.date || date;
 
+    // Validar solapamiento y horas diarias acumuladas
+    const existingLogsResult = await getExistingWorkLogsForUserAndDate(supabase, record.user_id, dateDb);
+    if (existingLogsResult.status === "error") {
+      return {
+        error: "No se pudo validar la disponibilidad horaria. Intentá nuevamente.",
+      };
+    }
+    const existingLogs = existingLogsResult.logs;
+    if (checkTimeOverlap(startTimeDb, endTimeDb, existingLogs, logId)) {
+      return {
+        error: "Ya existe un registro de horas que se superpone con ese horario.",
+      };
+    }
+    const dailyTotal = calculateDailyTotalHours(validation.duration, existingLogs, logId);
+    if (dailyTotal > MAX_DAILY_WORK_LOG_HOURS) {
+      return {
+        error: "El total diario no puede superar las 20 horas.",
+      };
+    }
+
     // 3. Validar permisos
     const updateFields: {
       date: string;
@@ -379,11 +439,124 @@ export async function updateWorkLogAction(
   }
 
   if (shouldRedirect) {
-    redirect("/registros");
+    const searchParamsRaw = formData.get("search_params") as string;
+    let redirectUrl = "/registros";
+    if (searchParamsRaw) {
+      const parsed = new URLSearchParams(searchParamsRaw);
+      const month = parsed.get("month");
+      const year = parsed.get("year");
+      
+      const newParams = new URLSearchParams();
+      if (month && !isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= 12) {
+        newParams.set("month", month);
+      }
+      if (year && !isNaN(Number(year)) && Number(year) >= 2000 && Number(year) <= 2100) {
+        newParams.set("year", year);
+      }
+
+      const queryString = newParams.toString();
+      if (queryString) {
+        redirectUrl = `/registros?${queryString}`;
+      }
+    }
+    redirect(redirectUrl);
   }
 
   return {};
 }
+
+type SupabaseClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+
+interface ExistingWorkLog {
+  id: string;
+  start_time: string;
+  end_time: string | null;
+  duration_hours: number;
+}
+
+async function getExistingWorkLogsForUserAndDate(
+  supabase: SupabaseClient,
+  userId: string,
+  date: string
+): Promise<{ status: "success"; logs: ExistingWorkLog[] } | { status: "error"; error: string }> {
+  const { data, error } = await supabase
+    .from("work_logs")
+    .select("id, start_time, end_time, duration_hours")
+    .eq("user_id", userId)
+    .eq("date", date);
+
+  if (error || !data) {
+    return { status: "error", error: error?.message || "Error al obtener registros." };
+  }
+
+  const logs = data.map((row) => ({
+    id: row.id,
+    start_time: row.start_time,
+    end_time: row.end_time,
+    duration_hours: Number(row.duration_hours),
+  }));
+
+  return { status: "success", logs };
+}
+
+function checkTimeOverlap(
+  newStart: string,
+  newEnd: string,
+  existingLogs: ExistingWorkLog[],
+  excludeLogId?: string
+): boolean {
+  const newStartMin = parseTimeToMinutesRobust(newStart);
+  const newEndMin = parseTimeToMinutesRobust(newEnd);
+
+  if (newStartMin < 0 || newEndMin < 0) return false;
+
+  for (const log of existingLogs) {
+    if (excludeLogId && log.id === excludeLogId) {
+      continue;
+    }
+    if (!log.end_time) {
+      continue;
+    }
+    const extStartMin = parseTimeToMinutesRobust(log.start_time);
+    const extEndMin = parseTimeToMinutesRobust(log.end_time);
+
+    if (extStartMin < 0 || extEndMin < 0) continue;
+
+    // Check overlap: existing.start_time < new.end_time AND existing.end_time > new.start_time
+    if (extStartMin < newEndMin && extEndMin > newStartMin) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function calculateDailyTotalHours(
+  newDuration: number,
+  existingLogs: ExistingWorkLog[],
+  excludeLogId?: string
+): number {
+  let total = newDuration;
+  for (const log of existingLogs) {
+    if (excludeLogId && log.id === excludeLogId) {
+      continue;
+    }
+    total += log.duration_hours;
+  }
+  return total;
+}
+
+function parseTimeToMinutesRobust(timeStr: string): number {
+  const parts = timeStr.trim().split(":");
+  if (parts.length < 2) return -1;
+  const hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
+  if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return -1;
+  }
+  return hours * 60 + minutes;
+}
+
 
 
 

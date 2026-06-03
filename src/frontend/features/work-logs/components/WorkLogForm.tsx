@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useState, useRef } from "react";
+import { useActionState, useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createWorkLogAction, updateWorkLogAction } from "@/backend/work-logs/actions";
 import { Profile } from "@/shared/types/profile";
 import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
+import { normalizeTime, calculateDurationHours, parseTimeToMinutes, MAX_WORK_LOG_HOURS } from "@/shared/validations/work-log";
 import styles from "./WorkLogForm.module.css";
 
 interface WorkLogFormProps {
@@ -19,6 +21,7 @@ interface WorkLogFormProps {
   };
   workLogId?: string;
   isLoadedInJira?: boolean;
+  workLogDeveloperName?: "dev" | "compa";
   onCancel?: () => void;
 }
 
@@ -37,10 +40,12 @@ export default function WorkLogForm({
   initialValues = {},
   workLogId,
   isLoadedInJira = false,
+  workLogDeveloperName,
   onCancel,
 }: WorkLogFormProps) {
   const isEdit = mode === "edit";
   const actionToUse = isEdit ? updateWorkLogAction : createWorkLogAction;
+  const searchParams = useSearchParams();
 
   const [state, formAction, isPending] = useActionState(
     actionToUse,
@@ -55,14 +60,47 @@ export default function WorkLogForm({
   const defaultEndTime = state.values?.end_time ?? formatTimeForInput(initialValues.end_time);
   const defaultTaskTitle = state.values?.task_title ?? initialValues.task_title ?? "";
   const defaultDescription = state.values?.description ?? initialValues.description ?? "";
-  const defaultDevName = state.values?.developer_name ?? currentProfile.developer_name ?? "";
+  const defaultDevName = state.values?.developer_name ?? workLogDeveloperName ?? currentProfile.developer_name ?? "";
 
-  const [prevDefaultDate, setPrevDefaultDate] = useState(defaultDate);
   const [dateValue, setDateValue] = useState(defaultDate);
+  const [startTimeVal, setStartTimeVal] = useState(defaultStartTime);
+  const [endTimeVal, setEndTimeVal] = useState(defaultEndTime);
 
-  if (defaultDate !== prevDefaultDate) {
-    setPrevDefaultDate(defaultDate);
+  // Sincronizar estados locales usando useEffect para evitar setStates en render
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDateValue(defaultDate);
+  }, [defaultDate]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStartTimeVal(defaultStartTime);
+  }, [defaultStartTime]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEndTimeVal(defaultEndTime);
+  }, [defaultEndTime]);
+
+  // Cálculos de duración y advertencias en vivo
+  const normStart = normalizeTime(startTimeVal);
+  const normEnd = normalizeTime(endTimeVal);
+
+  let liveDuration: number | null = null;
+  let liveError: string | null = null;
+
+  if (normStart && normEnd) {
+    const startMin = parseTimeToMinutes(normStart);
+    const endMin = parseTimeToMinutes(normEnd);
+
+    if (endMin <= startMin) {
+      liveError = "La hora de fin debe ser posterior a la hora de inicio.";
+    } else {
+      liveDuration = calculateDurationHours(normStart, normEnd);
+      if (liveDuration > MAX_WORK_LOG_HOURS) {
+        liveError = "Un registro no puede superar las 12 horas.";
+      }
+    }
   }
 
   const datePickerRef = useRef<HTMLInputElement>(null);
@@ -82,6 +120,9 @@ export default function WorkLogForm({
         <input type="hidden" name="id" value={workLogId} />
       )}
 
+      {/* Input oculto para conservar los parámetros de período (mes y año) */}
+      <input type="hidden" name="search_params" value={searchParams.toString()} />
+
       {/* 1. Selección de desarrollador (Admin) o indicador estático (User) */}
       {isAdmin && !isEdit ? (
         <div className={styles.field}>
@@ -92,12 +133,14 @@ export default function WorkLogForm({
             className={styles.select}
             defaultValue={defaultDevName}
             disabled={isPending}
+            aria-invalid={!!state.errors?.general}
+            aria-describedby={state.errors?.general ? "developer-error" : undefined}
           >
             <option value="dev">{getDeveloperDisplayName("dev")}</option>
             <option value="compa">{getDeveloperDisplayName("compa")}</option>
           </select>
           {state.errors?.general && (
-            <p className={styles.fieldError} role="alert">
+            <p id="developer-error" className={styles.fieldError} role="alert">
               {state.errors.general}
             </p>
           )}
@@ -109,13 +152,13 @@ export default function WorkLogForm({
             type="text"
             id="developer_name_display"
             className={styles.input}
-            value={getDeveloperDisplayName(currentProfile.developer_name)}
+            value={getDeveloperDisplayName(workLogDeveloperName || currentProfile.developer_name)}
             disabled
           />
           <input
             type="hidden"
             name="developer_name"
-            value={currentProfile.developer_name}
+            value={workLogDeveloperName || currentProfile.developer_name}
           />
         </div>
       )}
@@ -135,6 +178,8 @@ export default function WorkLogForm({
               value={dateValue}
               onChange={(e) => setDateValue(e.target.value)}
               disabled={isPending}
+              aria-invalid={!!state.errors?.date}
+              aria-describedby={state.errors?.date ? "date-error" : "date-help"}
             />
             <button
               type="button"
@@ -159,11 +204,11 @@ export default function WorkLogForm({
               disabled={isPending}
             />
           </div>
-          <span className={styles.helpText}>
+          <span id="date-help" className={styles.helpText}>
             Podés escribir la fecha o elegirla con el calendario.
           </span>
           {state.errors?.date && (
-            <p className={styles.fieldError} role="alert">
+            <p id="date-error" className={styles.fieldError} role="alert">
               {state.errors.date}
             </p>
           )}
@@ -179,11 +224,14 @@ export default function WorkLogForm({
             className={styles.input}
             placeholder="08:00 o 8"
             required
-            defaultValue={defaultStartTime}
+            value={startTimeVal}
+            onChange={(e) => setStartTimeVal(e.target.value)}
             disabled={isPending}
+            aria-invalid={!!state.errors?.start_time}
+            aria-describedby={state.errors?.start_time ? "start-time-error" : undefined}
           />
           {state.errors?.start_time && (
-            <p className={styles.fieldError} role="alert">
+            <p id="start-time-error" className={styles.fieldError} role="alert">
               {state.errors.start_time}
             </p>
           )}
@@ -199,16 +247,32 @@ export default function WorkLogForm({
             className={styles.input}
             placeholder="17:30 o 17"
             required
-            defaultValue={defaultEndTime}
+            value={endTimeVal}
+            onChange={(e) => setEndTimeVal(e.target.value)}
             disabled={isPending}
+            aria-invalid={!!state.errors?.end_time}
+            aria-describedby={state.errors?.end_time ? "end-time-error" : undefined}
           />
           {state.errors?.end_time && (
-            <p className={styles.fieldError} role="alert">
+            <p id="end-time-error" className={styles.fieldError} role="alert">
               {state.errors.end_time}
             </p>
           )}
         </div>
       </div>
+
+      {/* Duración calculada en vivo y mensajes informativos */}
+      {liveDuration !== null && !liveError && (
+        <div className={styles.liveDuration}>
+          Duración calculada: <strong>{liveDuration} {liveDuration === 1 ? "hora" : "horas"}</strong>
+        </div>
+      )}
+
+      {liveError && (
+        <div className={styles.liveError} role="alert">
+          {liveError}
+        </div>
+      )}
 
       {/* 3. Título de Tarea */}
       <div className={styles.field}>
@@ -222,9 +286,11 @@ export default function WorkLogForm({
           required
           defaultValue={defaultTaskTitle}
           disabled={isPending}
+          aria-invalid={!!state.errors?.task_title}
+          aria-describedby={state.errors?.task_title ? "task-title-error" : undefined}
         />
         {state.errors?.task_title && (
-          <p className={styles.fieldError} role="alert">
+          <p id="task-title-error" className={styles.fieldError} role="alert">
             {state.errors.task_title}
           </p>
         )}
@@ -241,18 +307,20 @@ export default function WorkLogForm({
           required
           defaultValue={defaultDescription}
           disabled={isPending}
+          aria-invalid={!!state.errors?.description}
+          aria-describedby={state.errors?.description ? "description-error" : undefined}
         />
         {state.errors?.description && (
-          <p className={styles.fieldError} role="alert">
+          <p id="description-error" className={styles.fieldError} role="alert">
             {state.errors.description}
           </p>
         )}
       </div>
 
       {/* 5. Advertencia para registros ya cargados en Jira (Admin) */}
-      {isEdit && isLoadedInJira && (
+      {isEdit && isLoadedInJira && isAdmin && (
         <div className={styles.warningMessage} role="alert">
-          Este registro ya estaba cargado en Jira. Si guardás cambios, volverá a quedar pendiente de Jira.
+          Este registro ya fue cargado en Jira. Si guardás cambios, volverá a quedar como Pendiente de Jira.
         </div>
       )}
 

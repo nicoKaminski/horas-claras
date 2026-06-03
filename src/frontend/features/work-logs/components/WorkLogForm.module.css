@@ -187,3 +187,23 @@
   margin-top: 2px;
   display: block;
 }
+
+.liveDuration {
+  padding: 10px 14px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.liveError {
+  padding: 10px 14px;
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--danger);
+  margin-top: 4px;
+}
