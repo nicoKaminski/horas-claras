@@ -2,16 +2,14 @@ import { useState } from "react";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
 import {
-  calculateTotalHoursByDateAndDev,
   getCanEdit,
 } from "../utils/work-log-table";
 
 interface UseWorkLogsTableRowsProps {
-  logs: WorkLog[];
   currentProfile: Profile;
 }
 
-export function useWorkLogsTableRows({ logs, currentProfile }: UseWorkLogsTableRowsProps) {
+export function useWorkLogsTableRows({ currentProfile }: UseWorkLogsTableRowsProps) {
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
 
   const toggleExpand = (id: string) => {
@@ -21,8 +19,6 @@ export function useWorkLogsTableRows({ logs, currentProfile }: UseWorkLogsTableR
     }));
   };
 
-  const totalHoursByDateAndDev = calculateTotalHoursByDateAndDev(logs);
-
   const checkCanEdit = (log: WorkLog) => {
     return getCanEdit(log, currentProfile);
   };
@@ -30,7 +26,6 @@ export function useWorkLogsTableRows({ logs, currentProfile }: UseWorkLogsTableR
   return {
     expandedLogs,
     toggleExpand,
-    totalHoursByDateAndDev,
     checkCanEdit,
   };
 }

@@ -23,7 +23,25 @@ interface WorkLogFormProps {
   isLoadedInJira?: boolean;
   workLogDeveloperName?: "dev" | "compa";
   onCancel?: () => void;
+  onFormStateChange?: (state: { isDirty: boolean; isPending: boolean }) => void;
 }
+
+const TRACKED_FIELD_NAMES = [
+  "developer_name",
+  "date",
+  "start_time",
+  "end_time",
+  "task_title",
+  "description",
+] as const;
+
+const getFormSnapshot = (form: HTMLFormElement) => {
+  const formData = new FormData(form);
+
+  return JSON.stringify(
+    TRACKED_FIELD_NAMES.map((fieldName) => [fieldName, String(formData.get(fieldName) ?? "")])
+  );
+};
 
 const formatTimeForInput = (timeStr?: string | null) => {
   if (!timeStr) return "";
@@ -42,6 +60,7 @@ export default function WorkLogForm({
   isLoadedInJira = false,
   workLogDeveloperName,
   onCancel,
+  onFormStateChange,
 }: WorkLogFormProps) {
   const isEdit = mode === "edit";
   const actionToUse = isEdit ? updateWorkLogAction : createWorkLogAction;
@@ -65,6 +84,9 @@ export default function WorkLogForm({
   const [dateValue, setDateValue] = useState(defaultDate);
   const [startTimeVal, setStartTimeVal] = useState(defaultStartTime);
   const [endTimeVal, setEndTimeVal] = useState(defaultEndTime);
+  const [isDirty, setIsDirty] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const initialFormSnapshotRef = useRef<string | null>(null);
 
   // Sincronizar estados locales usando useEffect para evitar setStates en render
   useEffect(() => {
@@ -81,6 +103,16 @@ export default function WorkLogForm({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEndTimeVal(defaultEndTime);
   }, [defaultEndTime]);
+
+  useEffect(() => {
+    if (!formRef.current) return;
+
+    initialFormSnapshotRef.current = getFormSnapshot(formRef.current);
+  }, []);
+
+  useEffect(() => {
+    onFormStateChange?.({ isDirty, isPending });
+  }, [isDirty, isPending, onFormStateChange]);
 
   // Cálculos de duración y advertencias en vivo
   const normStart = normalizeTime(startTimeVal);
@@ -113,8 +145,20 @@ export default function WorkLogForm({
     }
   };
 
+  const handleFormChange = () => {
+    if (!formRef.current || initialFormSnapshotRef.current === null) return;
+
+    setIsDirty(getFormSnapshot(formRef.current) !== initialFormSnapshotRef.current);
+  };
+
   return (
-    <form action={formAction} className={styles.form}>
+    <form
+      ref={formRef}
+      action={formAction}
+      className={styles.form}
+      onChange={handleFormChange}
+      onInput={handleFormChange}
+    >
       {/* Input oculto para el ID del registro en modo edición */}
       {isEdit && workLogId && (
         <input type="hidden" name="id" value={workLogId} />

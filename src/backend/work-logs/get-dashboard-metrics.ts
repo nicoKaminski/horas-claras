@@ -92,8 +92,8 @@ export async function getDashboardMetrics(
     const breakdown: Record<"dev" | "compa", DeveloperMetrics> | null =
       profile.role === "admin"
         ? {
-            dev: { total_hours: 0, pending_jira_count: 0 },
-            compa: { total_hours: 0, pending_jira_count: 0 },
+            dev: { total_hours: 0, pending_jira_count: 0, pending_jira_hours: 0 },
+            compa: { total_hours: 0, pending_jira_count: 0, pending_jira_hours: 0 },
           }
         : null;
 
@@ -132,6 +132,7 @@ export async function getDashboardMetrics(
           breakdown[devName].total_hours += duration;
           if (!jiraLoaded) {
             breakdown[devName].pending_jira_count += 1;
+            breakdown[devName].pending_jira_hours += duration;
           }
         }
 
@@ -152,6 +153,8 @@ export async function getDashboardMetrics(
     if (breakdown) {
       breakdown.dev.total_hours = Math.round(breakdown.dev.total_hours * 100) / 100;
       breakdown.compa.total_hours = Math.round(breakdown.compa.total_hours * 100) / 100;
+      breakdown.dev.pending_jira_hours = Math.round(breakdown.dev.pending_jira_hours * 100) / 100;
+      breakdown.compa.pending_jira_hours = Math.round(breakdown.compa.pending_jira_hours * 100) / 100;
     }
 
     // Calcular top day

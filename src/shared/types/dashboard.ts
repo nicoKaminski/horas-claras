@@ -3,6 +3,7 @@ import { DeveloperName } from "./profile";
 export interface DeveloperMetrics {
   total_hours: number;
   pending_jira_count: number;
+  pending_jira_hours: number;
   hourlyRate?: number | null;
   amountToCharge?: number | null;
   hasConfiguredRate?: boolean;
@@ -29,5 +30,4 @@ export interface DashboardMetrics {
   amountToCharge?: number | null;
   hasConfiguredRate?: boolean;
 }
-
 

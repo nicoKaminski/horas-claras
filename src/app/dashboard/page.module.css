@@ -159,10 +159,21 @@
 
 .progressDetails {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
+}
+
+.pendingLink {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.pendingLink:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
 }
 
 /* Bar Chart styles */
@@ -510,5 +521,4 @@
     font-size: 16px;
   }
 }
-
 

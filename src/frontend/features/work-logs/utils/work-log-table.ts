@@ -19,14 +19,6 @@ export const formatDate = (dateStr: string): string => {
   return dateStr;
 };
 
-export const calculateTotalHoursByDateAndDev = (logs: WorkLog[]): Record<string, number> => {
-  return logs.reduce((acc, log) => {
-    const key = `${log.date}_${log.developer_name}`;
-    acc[key] = (acc[key] || 0) + log.duration_hours;
-    return acc;
-  }, {} as Record<string, number>);
-};
-
 export const getCanEdit = (log: WorkLog, currentProfile: Profile): boolean => {
   const isAdmin = currentProfile.role === "admin";
   const isOwner = log.user_id === currentProfile.id;

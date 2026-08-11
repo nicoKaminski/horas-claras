@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentProfile } from "@/backend/profiles/get-current-profile";
 import { getDashboardMetrics } from "@/backend/work-logs/get-dashboard-metrics";
 import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
@@ -16,6 +17,11 @@ const formatCurrency = (value: number | null | undefined) => {
   }).format(value);
 };
 
+const formatHours = (value: number) =>
+  new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(value);
+
+const formatJiraSummary = (count: number, hours: number) =>
+  `${count} ${count === 1 ? "registro" : "registros"} · ${formatHours(hours)} hs`;
 
 
 export const metadata = {
@@ -182,16 +188,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         <div>
                           <span className={styles.jiraMetricLabel}>Cargadas en Jira</span>
                           <strong className={styles.jiraMetricVal}>
-                            {metricsResult.metrics.loaded_jira_hours} hs ({metricsResult.metrics.loaded_jira_count} logs)
+                            {formatJiraSummary(
+                              metricsResult.metrics.loaded_jira_count,
+                              metricsResult.metrics.loaded_jira_hours
+                            )}
                           </strong>
                         </div>
                       </div>
                       <div className={styles.jiraMetricItem}>
                         <span className={`${styles.dot} ${styles.dotWarning}`} />
                         <div>
-                          <span className={styles.jiraMetricLabel}>Pendientes de Jira</span>
+                          <span className={styles.jiraMetricLabel}>Pendientes de cargar en Jira</span>
                           <strong className={styles.jiraMetricVal}>
-                            {metricsResult.metrics.pending_jira_hours} hs ({metricsResult.metrics.pending_jira_count} logs)
+                            {formatJiraSummary(
+                              metricsResult.metrics.pending_jira_count,
+                              metricsResult.metrics.pending_jira_hours
+                            )}
                           </strong>
                         </div>
                       </div>
@@ -205,6 +217,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </div>
                     <div className={styles.progressDetails}>
                       <span>{metricsResult.metrics.jira_loaded_percentage}% completado</span>
+                      {metricsResult.metrics.pending_jira_count > 0 && (
+                        <Link href="/pendientes-jira" className={styles.pendingLink}>
+                          Ver pendientes
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -264,9 +281,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                           </strong>
                         </div>
                         <div className={styles.breakdownRow}>
-                          <span className={styles.breakdownLabel}>Pendientes Jira:</span>
+                          <span className={styles.breakdownLabel}>Pendientes de cargar en Jira:</span>
                           <strong className={styles.breakdownValue}>
-                            {metricsResult.metrics.breakdown.dev.pending_jira_count}
+                            {formatJiraSummary(
+                              metricsResult.metrics.breakdown.dev.pending_jira_count,
+                              metricsResult.metrics.breakdown.dev.pending_jira_hours
+                            )}
                           </strong>
                         </div>
                       </div>
@@ -282,9 +302,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                           </strong>
                         </div>
                         <div className={styles.breakdownRow}>
-                          <span className={styles.breakdownLabel}>Pendientes Jira:</span>
+                          <span className={styles.breakdownLabel}>Pendientes de cargar en Jira:</span>
                           <strong className={styles.breakdownValue}>
-                            {metricsResult.metrics.breakdown.compa.pending_jira_count}
+                            {formatJiraSummary(
+                              metricsResult.metrics.breakdown.compa.pending_jira_count,
+                              metricsResult.metrics.breakdown.compa.pending_jira_hours
+                            )}
                           </strong>
                         </div>
                       </div>

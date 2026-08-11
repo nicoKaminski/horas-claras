@@ -20,9 +20,8 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
   const {
     expandedLogs,
     toggleExpand,
-    totalHoursByDateAndDev,
     checkCanEdit,
-  } = useWorkLogsTableRows({ logs, currentProfile });
+  } = useWorkLogsTableRows({ currentProfile });
 
   const isAdmin = currentProfile.role === "admin";
 
@@ -37,7 +36,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
               <th>Desarrollador</th>
               <th>Horario</th>
               <th>Horas</th>
-              <th>Total Día</th>
               <th>Tarea</th>
               <th>Descripción</th>
               <th>Estado Jira</th>
@@ -46,8 +44,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
           </thead>
           <tbody>
             {logs.map((log) => {
-              const key = `${log.date}_${log.developer_name}`;
-              const dailyTotal = Math.round((totalHoursByDateAndDev[key] || 0) * 100) / 100;
               const isExpanded = !!expandedLogs[log.id];
               const isLong = log.description.length > 70;
               const displayText = isLong && !isExpanded
@@ -71,7 +67,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                     {formatTime(log.start_time)} - {formatTime(log.end_time)}
                   </td>
                   <td className={styles.hoursCell}>{log.duration_hours} hs</td>
-                  <td className={styles.totalHoursCell}>{dailyTotal} hs</td>
                   <td className={styles.taskCell}>{log.task_title}</td>
                   <td className={styles.descCell}>
                     <div className={styles.descText}>
@@ -134,8 +129,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
       {/* Vista de Tarjetas Mobile */}
       <div className={styles.cardsContainer}>
         {logs.map((log) => {
-          const key = `${log.date}_${log.developer_name}`;
-          const dailyTotal = Math.round((totalHoursByDateAndDev[key] || 0) * 100) / 100;
           const isExpanded = !!expandedLogs[log.id];
           const isLong = log.description.length > 100;
           const displayText = isLong && !isExpanded
@@ -168,10 +161,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                 <div className={styles.statItem}>
                   <span className={styles.statLabel}>Duración:</span>
                   <strong className={styles.statValue}>{log.duration_hours} hs</strong>
-                </div>
-                <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Total del día:</span>
-                  <strong className={styles.statValue}>{dailyTotal} hs</strong>
                 </div>
               </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { FiPlus, FiSearch, FiRefreshCw } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
@@ -24,6 +25,16 @@ const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
+
+interface FormInteractionState {
+  isDirty: boolean;
+  isPending: boolean;
+}
+
+const INITIAL_FORM_INTERACTION_STATE: FormInteractionState = {
+  isDirty: false,
+  isPending: false,
+};
 
 export default function Workspace({ logs, currentProfile, initialMonth, initialYear }: WorkspaceProps) {
   const { isPending, handleMonthYearChange } = useWorkspacePeriodNavigation();
@@ -54,6 +65,54 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
     clearFilters,
     filteredLogs,
   } = useWorkLogFilters({ logs, currentProfile });
+  const [createFormState, setCreateFormState] = useState<FormInteractionState>(INITIAL_FORM_INTERACTION_STATE);
+  const [editFormState, setEditFormState] = useState<FormInteractionState>(INITIAL_FORM_INTERACTION_STATE);
+  const [isCreateDiscardConfirmationOpen, setIsCreateDiscardConfirmationOpen] = useState(false);
+  const [isEditDiscardConfirmationOpen, setIsEditDiscardConfirmationOpen] = useState(false);
+
+  const handleOpenCreateModal = useCallback(() => {
+    setCreateFormState(INITIAL_FORM_INTERACTION_STATE);
+    setIsCreateDiscardConfirmationOpen(false);
+    openCreateModal();
+  }, [openCreateModal]);
+
+  const handleCloseCreateModal = useCallback(() => {
+    setIsCreateDiscardConfirmationOpen(false);
+    setCreateFormState(INITIAL_FORM_INTERACTION_STATE);
+    closeCreateModal();
+  }, [closeCreateModal]);
+
+  const handleCreateCloseAttempt = useCallback(() => {
+    if (createFormState.isPending) return;
+    if (createFormState.isDirty) {
+      setIsCreateDiscardConfirmationOpen(true);
+      return;
+    }
+
+    handleCloseCreateModal();
+  }, [createFormState.isDirty, createFormState.isPending, handleCloseCreateModal]);
+
+  const handleEditModalOpen = useCallback((log: WorkLog) => {
+    setEditFormState(INITIAL_FORM_INTERACTION_STATE);
+    setIsEditDiscardConfirmationOpen(false);
+    handleEditClick(log);
+  }, [handleEditClick]);
+
+  const handleCloseEditModal = useCallback(() => {
+    setIsEditDiscardConfirmationOpen(false);
+    setEditFormState(INITIAL_FORM_INTERACTION_STATE);
+    closeEditModal();
+  }, [closeEditModal]);
+
+  const handleEditCloseAttempt = useCallback(() => {
+    if (editFormState.isPending) return;
+    if (editFormState.isDirty) {
+      setIsEditDiscardConfirmationOpen(true);
+      return;
+    }
+
+    handleCloseEditModal();
+  }, [editFormState.isDirty, editFormState.isPending, handleCloseEditModal]);
 
   const years = [];
   const currentSystemYear = new Date().getFullYear();
@@ -74,7 +133,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
         </div>
         <button
           type="button"
-          onClick={openCreateModal}
+          onClick={handleOpenCreateModal}
           className={styles.btnPrimary}
         >
           <FiPlus size={18} />
@@ -251,7 +310,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
             <p>Intentá modificando los filtros o cargá un nuevo registro de horas.</p>
             <button
               type="button"
-              onClick={openCreateModal}
+              onClick={handleOpenCreateModal}
               className={styles.btnPrimary}
             >
               <FiPlus size={16} />
@@ -262,7 +321,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
           <WorkLogsTable
             logs={filteredLogs}
             currentProfile={currentProfile}
-            onEdit={handleEditClick}
+            onEdit={handleEditModalOpen}
           />
         )}
       </section>
@@ -270,21 +329,34 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
       {/* Modal para Crear Registro */}
       <AppModal
         isOpen={isCreateOpen}
-        onClose={closeCreateModal}
+        onClose={handleCreateCloseAttempt}
         title="Registrar horas"
+        closeDisabled={createFormState.isPending}
+        discardConfirmation={{
+          isOpen: isCreateDiscardConfirmationOpen,
+          onContinueEditing: () => setIsCreateDiscardConfirmationOpen(false),
+          onDiscard: handleCloseCreateModal,
+        }}
       >
         <WorkLogForm
           currentProfile={currentProfile}
           mode="create"
-          onCancel={closeCreateModal}
+          onCancel={handleCreateCloseAttempt}
+          onFormStateChange={setCreateFormState}
         />
       </AppModal>
 
       {/* Modal para Editar Registro */}
       <AppModal
         isOpen={isEditOpen}
-        onClose={closeEditModal}
+        onClose={handleEditCloseAttempt}
         title="Editar registro"
+        closeDisabled={editFormState.isPending}
+        discardConfirmation={{
+          isOpen: isEditDiscardConfirmationOpen,
+          onContinueEditing: () => setIsEditDiscardConfirmationOpen(false),
+          onDiscard: handleCloseEditModal,
+        }}
       >
         {logToEdit && (
           <WorkLogForm
@@ -292,7 +364,8 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
             mode="edit"
             workLogId={logToEdit.id}
             isLoadedInJira={logToEdit.jira_loaded}
-            onCancel={closeEditModal}
+            onCancel={handleEditCloseAttempt}
+            onFormStateChange={setEditFormState}
             initialValues={{
               date: logToEdit.date,
               start_time: logToEdit.start_time,

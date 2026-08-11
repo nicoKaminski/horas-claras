@@ -62,12 +62,6 @@
   white-space: nowrap;
 }
 
-.totalHoursCell {
-  font-weight: 750;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
 .taskCell {
   font-weight: 700;
   color: var(--text-primary);
@@ -75,8 +69,8 @@
 }
 
 .descCell {
-  min-width: 200px;
-  max-width: 400px;
+  min-width: 280px;
+  max-width: 480px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -248,8 +242,7 @@
   }
 
   .cardStats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
     background-color: var(--bg-primary);
     padding: 10px;
     border-radius: 8px;

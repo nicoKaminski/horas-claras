@@ -14,6 +14,7 @@
 }
 
 .modal {
+  position: relative;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -69,7 +70,107 @@
   color: var(--text-primary);
 }
 
+.closeBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .content {
   padding: 24px;
   overflow-y: auto;
+}
+
+.discardConfirmation {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+}
+
+.discardConfirmationContent {
+  width: min(100%, 420px);
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: var(--bg-surface-elevated);
+  box-shadow: var(--shadow);
+}
+
+.discardConfirmationTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.discardConfirmationMessage {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.discardConfirmationActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.continueEditingBtn,
+.discardChangesBtn {
+  min-height: 38px;
+  border-radius: 7px;
+  padding: 0 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.continueEditingBtn {
+  border: 1px solid var(--border);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.discardChangesBtn {
+  border: 1px solid var(--danger);
+  background-color: var(--danger);
+  color: #ffffff;
+}
+
+.continueEditingBtn:hover {
+  background-color: var(--bg-primary);
+}
+
+.discardChangesBtn:hover {
+  filter: brightness(0.92);
+}
+
+.continueEditingBtn:focus-visible,
+.discardChangesBtn:focus-visible,
+.closeBtn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .discardConfirmation {
+    padding: 16px;
+  }
+
+  .discardConfirmationContent {
+    padding: 20px;
+  }
+
+  .discardConfirmationActions {
+    flex-direction: column;
+  }
+
+  .continueEditingBtn,
+  .discardChangesBtn {
+    width: 100%;
+  }
 }
