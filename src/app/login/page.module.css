@@ -92,3 +92,73 @@
   width: auto;
   object-fit: contain;
 }
+
+.visitorSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0 0 4px 0;
+}
+
+.visitorTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.visitorLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.visitorLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+  border-radius: 4px;
+}
+
+.visitorLink:hover {
+  color: var(--primary-hover);
+}
+
+.visitorLink:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.linkIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.separator {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  user-select: none;
+}
+
+.visitorAuthor {
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
