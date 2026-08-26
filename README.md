@@ -9,6 +9,38 @@ Horas Claras tiene un objetivo doble:
 1. Ser una herramienta real de uso interno.
 2. Servir como proyecto presentable de portfolio, con foco en arquitectura simple, permisos claros y documentación cuidada.
 
+## Cómo nació
+
+Un TXT, un Excel y Jira terminaron convirtiéndose en una app.
+
+El problema era bastante simple: las horas de trabajo de dos personas terminaban cargándose desde una sola cuenta de Jira. Para poder diferenciarlas y llevar un control, una parte de la información quedaba en un TXT y otra en un Excel.
+
+Funcionaba, pero al llegar al cierre del mes había que revisar tres lugares distintos para lograr que todos los números coincidieran.
+
+Horas Claras nació para reemplazar ese proceso por una sola mini app donde cada uno puede registrar sus horas, controlar qué falta cargar en Jira y consultar cuánto trabajó durante el período.
+
+También fue mi primera experiencia trabajando con Supabase. En lugar de practicar con un ejemplo inventado, aproveché para aprender mientras resolvía una necesidad que realmente teníamos.
+
+No nació como una aplicación enorme ni como una idea de negocio. Nació de una tarea repetitiva y difícil de controlar que ya no tenía sentido seguir resolviendo con archivos separados.
+
+## Aplicación
+
+La aplicación se encuentra desplegada en:
+
+[https://horas-claras.vercel.app/](https://horas-claras.vercel.app/)
+
+La instancia desplegada es de uso privado y requiere autenticación. No se proporcionan credenciales públicas ni se exponen datos reales de trabajo.
+
+## Capturas
+
+### Dashboard
+
+![Dashboard de Horas Claras](./docs/images/dashboard.jpg)
+
+### Registro de horas
+
+![Registro de horas en Horas Claras](./docs/images/registro-horas.jpg)
+
 ## Estado actual
 
 Todas las funcionalidades del MVP se encuentran completamente implementadas y listas para producción:
@@ -49,10 +81,10 @@ Ver el detalle en [docs/roadmap.md](./docs/roadmap.md).
 
 El MVP trabaja con dos identidades visibles:
 
-| Usuario | Rol | Resumen |
-| --- | --- | --- |
-| `dev` | `admin` | Puede ver todo, gestionar cualquier registro y marcar carga Jira. |
-| `compa` | `user` | Gestiona solo sus propios registros no cargados en Jira. |
+| Usuario | Rol     | Resumen                                                           |
+| ------- | ------- | ----------------------------------------------------------------- |
+| `dev`   | `admin` | Puede ver todo, gestionar cualquier registro y marcar carga Jira. |
+| `compa` | `user`  | Gestiona solo sus propios registros no cargados en Jira.          |
 
 La seguridad real debe estar respaldada por Supabase RLS, no solo por controles visuales.
 
