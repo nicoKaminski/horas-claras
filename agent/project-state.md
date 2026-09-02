@@ -53,8 +53,8 @@ Decisiones cerradas:
 ```txt
 horas-claras/
 ├─ public/
-│  ├─ faviconHorasClarasDark.png
-│  └─ logoHorasClarasDark.png
+│  ├─ favicon.png
+│  └─ logo.svg
 ├─ src/
 │  ├─ app/
 │  │  ├─ dashboard/         Página de dashboard (page.tsx + page.module.css)
@@ -123,8 +123,8 @@ Estado real observado en el repo:
 ### Infraestructura y configuración
 - Proyecto Next.js 16.2.6 con React 19, TypeScript estricto.
 - Fuentes: Geist Sans y Geist Mono (next/font/google).
-- Favicon real: `faviconHorasClarasDark.png`.
-- Logo real: `logoHorasClarasDark.png`.
+- Favicon real: `favicon.png`.
+- Logo real: `logo.svg`.
 - Variables de entorno documentadas en `.env.example`.
 - `.gitignore` configurado (`.env.local` ignorado, `.env.example` versionado).
 
@@ -192,7 +192,7 @@ Estado real observado en el repo:
 - Incluye botón de tema y `LogoutButton`.
 
 ### Branding
-- Logo y favicon reales aplicados (archivos PNG en `public/`).
+- Logo SVG y favicon PNG aplicados desde `public/`.
 - Metadata configurada en `layout.tsx`.
 
 ---

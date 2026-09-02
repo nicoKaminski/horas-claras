@@ -28,7 +28,7 @@ export default async function LoginPage() {
       <section className={styles.card} aria-labelledby="login-title">
         <div className={styles.logoContainer}>
           <Image
-            src="/logoHorasClarasDark.png"
+            src="/logo.svg"
             alt="Horas Claras"
             width={160}
             height={48}

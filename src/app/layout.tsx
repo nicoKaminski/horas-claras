@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Horas Claras",
   description: "Mini app para registrar horas y controlar cargas en Jira",
   icons: {
-    icon: "/faviconHorasClarasDark.png",
+    icon: "/favicon.png",
   },
 };
 

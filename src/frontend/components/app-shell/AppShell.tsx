@@ -28,7 +28,7 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
       <header className={styles.mobileHeader}>
         <div className={styles.logoContainer}>
           <Image
-            src="/logoHorasClarasDark.png"
+            src="/logo.svg"
             alt="Horas Claras"
             width={120}
             height={32}
@@ -51,7 +51,7 @@ export default function AppShell({ children, profile, activeItem }: AppShellProp
         <div className={styles.sidebarHeader}>
           <div className={styles.logoContainer}>
             <Image
-              src="/logoHorasClarasDark.png"
+              src="/logo.svg"
               alt="Horas Claras"
               width={120}
               height={32}
