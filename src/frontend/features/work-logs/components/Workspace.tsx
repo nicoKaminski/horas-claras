@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FiPlus, FiSearch, FiRefreshCw } from "react-icons/fi";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
@@ -113,6 +113,42 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
 
     handleCloseEditModal();
   }, [editFormState.isDirty, editFormState.isPending, handleCloseEditModal]);
+
+  const handleCreateFormStateChange = useCallback((newState: FormInteractionState) => {
+    setCreateFormState((prev) => {
+      if (prev.isDirty === newState.isDirty && prev.isPending === newState.isPending) {
+        return prev;
+      }
+      return newState;
+    });
+  }, []);
+
+  const handleEditFormStateChange = useCallback((newState: FormInteractionState) => {
+    setEditFormState((prev) => {
+      if (prev.isDirty === newState.isDirty && prev.isPending === newState.isPending) {
+        return prev;
+      }
+      return newState;
+    });
+  }, []);
+
+  const createDiscardConfirmation = useMemo(
+    () => ({
+      isOpen: isCreateDiscardConfirmationOpen,
+      onContinueEditing: () => setIsCreateDiscardConfirmationOpen(false),
+      onDiscard: handleCloseCreateModal,
+    }),
+    [isCreateDiscardConfirmationOpen, handleCloseCreateModal]
+  );
+
+  const editDiscardConfirmation = useMemo(
+    () => ({
+      isOpen: isEditDiscardConfirmationOpen,
+      onContinueEditing: () => setIsEditDiscardConfirmationOpen(false),
+      onDiscard: handleCloseEditModal,
+    }),
+    [isEditDiscardConfirmationOpen, handleCloseEditModal]
+  );
 
   const years = [];
   const currentSystemYear = new Date().getFullYear();
@@ -332,17 +368,13 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
         onClose={handleCreateCloseAttempt}
         title="Registrar horas"
         closeDisabled={createFormState.isPending}
-        discardConfirmation={{
-          isOpen: isCreateDiscardConfirmationOpen,
-          onContinueEditing: () => setIsCreateDiscardConfirmationOpen(false),
-          onDiscard: handleCloseCreateModal,
-        }}
+        discardConfirmation={createDiscardConfirmation}
       >
         <WorkLogForm
           currentProfile={currentProfile}
           mode="create"
           onCancel={handleCreateCloseAttempt}
-          onFormStateChange={setCreateFormState}
+          onFormStateChange={handleCreateFormStateChange}
         />
       </AppModal>
 
@@ -352,11 +384,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
         onClose={handleEditCloseAttempt}
         title="Editar registro"
         closeDisabled={editFormState.isPending}
-        discardConfirmation={{
-          isOpen: isEditDiscardConfirmationOpen,
-          onContinueEditing: () => setIsEditDiscardConfirmationOpen(false),
-          onDiscard: handleCloseEditModal,
-        }}
+        discardConfirmation={editDiscardConfirmation}
       >
         {logToEdit && (
           <WorkLogForm
@@ -365,7 +393,7 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
             workLogId={logToEdit.id}
             isLoadedInJira={logToEdit.jira_loaded}
             onCancel={handleEditCloseAttempt}
-            onFormStateChange={setEditFormState}
+            onFormStateChange={handleEditFormStateChange}
             initialValues={{
               date: logToEdit.date,
               start_time: logToEdit.start_time,

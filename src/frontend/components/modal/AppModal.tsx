@@ -43,10 +43,17 @@ export default function AppModal({
     onClose();
   }, [closeDisabled, discardConfirmation, isDiscardConfirmationOpen, onClose]);
 
+  // Mantener la versión más reciente del handler de cierre sin re-ejecutar efectos de foco
+  const handleCloseAttemptRef = useRef(handleCloseAttempt);
+  handleCloseAttemptRef.current = handleCloseAttempt;
+
+  // Manejo de eventos de teclado (Escape y Tab trap)
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        handleCloseAttempt();
+        handleCloseAttemptRef.current();
         return;
       }
 
@@ -79,39 +86,47 @@ export default function AppModal({
       }
     };
 
-    if (isOpen) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [discardTitleId, isDiscardConfirmationOpen, isOpen]);
 
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
+  // Bloqueo de scroll y foco inicial únicamente al abrir/cerrar el modal
+  useEffect(() => {
+    if (!isOpen) return;
 
-      // Enfocar el primer elemento interactivo (usualmente el botón de cerrar)
-      setTimeout(() => {
-        if (isDiscardConfirmationOpen) {
-          continueEditingButtonRef.current?.focus();
-          return;
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    document.body.style.overflow = "hidden";
+
+    // Enfocar elemento inicial solo si el foco no está ya dentro del modal
+    const timer = setTimeout(() => {
+      if (modalRef.current && !modalRef.current.contains(document.activeElement)) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex="0"]'
+        );
+        if (focusableElements.length > 0) {
+          focusableElements[0].focus();
         }
-
-        if (modalRef.current) {
-          const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex="0"]'
-          );
-          if (focusableElements.length > 0) {
-            focusableElements[0].focus();
-          }
-        }
-      }, 0);
-    }
+      }
+    }, 0);
 
     return () => {
+      clearTimeout(timer);
       document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
 
       if (previousFocusRef.current) {
         previousFocusRef.current.focus();
       }
     };
-  }, [discardTitleId, handleCloseAttempt, isDiscardConfirmationOpen, isOpen]);
+  }, [isOpen]);
+
+  // Foco específico cuando se abre el diálogo de confirmación de descarte
+  useEffect(() => {
+    if (isDiscardConfirmationOpen) {
+      continueEditingButtonRef.current?.focus();
+    }
+  }, [isDiscardConfirmationOpen]);
 
   if (!isOpen) return null;
 
