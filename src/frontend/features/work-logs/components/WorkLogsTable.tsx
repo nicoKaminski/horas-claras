@@ -6,6 +6,7 @@ import { Profile } from "@/shared/types/profile";
 import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
 import MarkJiraLoadedButton from "./MarkJiraLoadedButton";
 import DeleteWorkLogButton from "./DeleteWorkLogButton";
+import WorkLogDescription from "./WorkLogDescription";
 import { useWorkLogsTableRows } from "../hooks/useWorkLogsTableRows";
 import { formatTime, formatDate } from "../utils/work-log-table";
 import styles from "./WorkLogsTable.module.css";
@@ -18,8 +19,6 @@ interface WorkLogsTableProps {
 
 export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogsTableProps) {
   const {
-    expandedLogs,
-    toggleExpand,
     checkCanEdit,
   } = useWorkLogsTableRows({ currentProfile });
 
@@ -44,11 +43,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
           </thead>
           <tbody>
             {logs.map((log) => {
-              const isExpanded = !!expandedLogs[log.id];
-              const isLong = log.description.length > 70;
-              const displayText = isLong && !isExpanded
-                ? `${log.description.substring(0, 70)}...`
-                : log.description;
               const canEdit = checkCanEdit(log);
 
               return (
@@ -69,18 +63,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
                   <td className={styles.hoursCell}>{log.duration_hours} hs</td>
                   <td className={styles.taskCell}>{log.task_title}</td>
                   <td className={styles.descCell}>
-                    <div className={styles.descText}>
-                      {displayText}
-                      {isLong && (
-                        <button
-                          type="button"
-                          className={styles.expandBtn}
-                          onClick={() => toggleExpand(log.id)}
-                        >
-                          {isExpanded ? "Ver menos" : "Ver más"}
-                        </button>
-                      )}
-                    </div>
+                    <WorkLogDescription description={log.description} clampLines={2} />
                   </td>
                   <td>
                     {log.jira_loaded ? (
@@ -129,11 +112,6 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
       {/* Vista de Tarjetas Mobile */}
       <div className={styles.cardsContainer}>
         {logs.map((log) => {
-          const isExpanded = !!expandedLogs[log.id];
-          const isLong = log.description.length > 100;
-          const displayText = isLong && !isExpanded
-            ? `${log.description.substring(0, 100)}...`
-            : log.description;
           const canEdit = checkCanEdit(log);
 
           return (
@@ -165,16 +143,7 @@ export default function WorkLogsTable({ logs, currentProfile, onEdit }: WorkLogs
               </div>
 
               <div className={styles.cardBody}>
-                <p>{displayText}</p>
-                {isLong && (
-                  <button
-                    type="button"
-                    className={styles.expandBtn}
-                    onClick={() => toggleExpand(log.id)}
-                  >
-                    {isExpanded ? "Ver menos" : "Ver más"}
-                  </button>
-                )}
+                <WorkLogDescription description={log.description} clampLines={3} />
               </div>
 
               <div className={styles.cardFooter}>
