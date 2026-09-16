@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useId } from "react";
 import { FiX } from "react-icons/fi";
 import styles from "./AppModal.module.css";
+import { useScrollLock } from "@/frontend/hooks/useScrollLock";
+import { useFocusTrap } from "@/frontend/hooks/useFocusTrap";
+import { useInitialFocus } from "@/frontend/hooks/useInitialFocus";
 
 interface AppModalProps {
   isOpen: boolean;
@@ -10,11 +13,6 @@ interface AppModalProps {
   title: string;
   children: React.ReactNode;
   closeDisabled?: boolean;
-  discardConfirmation?: {
-    isOpen: boolean;
-    onContinueEditing: () => void;
-    onDiscard: () => void;
-  };
 }
 
 export default function AppModal({
@@ -23,66 +21,32 @@ export default function AppModal({
   title,
   children,
   closeDisabled = false,
-  discardConfirmation,
 }: AppModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-  const continueEditingButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
-  const discardTitleId = useId();
-  const isDiscardConfirmationOpen = discardConfirmation?.isOpen === true;
+
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen);
+  useInitialFocus(modalRef, isOpen);
 
   const handleCloseAttempt = useCallback(() => {
     if (closeDisabled) return;
-
-    if (isDiscardConfirmationOpen) {
-      discardConfirmation?.onContinueEditing();
-      return;
-    }
-
     onClose();
-  }, [closeDisabled, discardConfirmation, isDiscardConfirmationOpen, onClose]);
+  }, [closeDisabled, onClose]);
 
-  // Mantener la versión más reciente del handler de cierre sin re-ejecutar efectos de foco
+  // Mantener la versión más reciente del handler de cierre
   const handleCloseAttemptRef = useRef(handleCloseAttempt);
-  handleCloseAttemptRef.current = handleCloseAttempt;
+  useEffect(() => {
+    handleCloseAttemptRef.current = handleCloseAttempt;
+  }, [handleCloseAttempt]);
 
-  // Manejo de eventos de teclado (Escape y Tab trap)
+  // Manejo de evento Escape
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         handleCloseAttemptRef.current();
-        return;
-      }
-
-      if (e.key === "Tab") {
-        if (!modalRef.current) return;
-        const focusTarget = isDiscardConfirmationOpen
-          ? modalRef.current.querySelector<HTMLElement>(`[aria-labelledby="${discardTitleId}"]`)
-          : modalRef.current;
-        if (!focusTarget) return;
-
-        const focusableElements = focusTarget.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex="0"]'
-        );
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-          }
-        }
       }
     };
 
@@ -90,43 +54,7 @@ export default function AppModal({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [discardTitleId, isDiscardConfirmationOpen, isOpen]);
-
-  // Bloqueo de scroll y foco inicial únicamente al abrir/cerrar el modal
-  useEffect(() => {
-    if (!isOpen) return;
-
-    previousFocusRef.current = document.activeElement as HTMLElement;
-    document.body.style.overflow = "hidden";
-
-    // Enfocar elemento inicial solo si el foco no está ya dentro del modal
-    const timer = setTimeout(() => {
-      if (modalRef.current && !modalRef.current.contains(document.activeElement)) {
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex="0"]'
-        );
-        if (focusableElements.length > 0) {
-          focusableElements[0].focus();
-        }
-      }
-    }, 0);
-
-    return () => {
-      clearTimeout(timer);
-      document.body.style.overflow = "";
-
-      if (previousFocusRef.current) {
-        previousFocusRef.current.focus();
-      }
-    };
   }, [isOpen]);
-
-  // Foco específico cuando se abre el diálogo de confirmación de descarte
-  useEffect(() => {
-    if (isDiscardConfirmationOpen) {
-      continueEditingButtonRef.current?.focus();
-    }
-  }, [isDiscardConfirmationOpen]);
 
   if (!isOpen) return null;
 
@@ -140,7 +68,7 @@ export default function AppModal({
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <header className={styles.header} aria-hidden={isDiscardConfirmationOpen}>
+        <header className={styles.header}>
           <h2 id={titleId} className={styles.title}>{title}</h2>
           <button
             type="button"
@@ -152,45 +80,9 @@ export default function AppModal({
             <FiX size={20} />
           </button>
         </header>
-        <div
-          className={styles.content}
-          aria-hidden={isDiscardConfirmationOpen}
-          inert={isDiscardConfirmationOpen}
-        >
+        <div className={styles.content}>
           {children}
         </div>
-        {isDiscardConfirmationOpen && discardConfirmation && (
-          <section
-            className={styles.discardConfirmation}
-            aria-labelledby={discardTitleId}
-          >
-            <div className={styles.discardConfirmationContent}>
-              <h3 id={discardTitleId} className={styles.discardConfirmationTitle}>
-                ¿Descartar los cambios?
-              </h3>
-              <p className={styles.discardConfirmationMessage}>
-                Tenés información sin guardar. Si cerrás el formulario, se perderá.
-              </p>
-              <div className={styles.discardConfirmationActions}>
-                <button
-                  ref={continueEditingButtonRef}
-                  type="button"
-                  className={styles.continueEditingBtn}
-                  onClick={discardConfirmation.onContinueEditing}
-                >
-                  Seguir editando
-                </button>
-                <button
-                  type="button"
-                  className={styles.discardChangesBtn}
-                  onClick={discardConfirmation.onDiscard}
-                >
-                  Descartar cambios
-                </button>
-              </div>
-            </div>
-          </section>
-        )}
       </div>
     </div>
   );

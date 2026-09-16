@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState, useState, useRef, useEffect } from "react";
+import { useActionState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createWorkLogAction, updateWorkLogAction } from "@/backend/work-logs/actions";
 import { Profile } from "@/shared/types/profile";
 import { getDeveloperDisplayName } from "@/shared/constants/profile-labels";
-import { normalizeTime, calculateDurationHours, parseTimeToMinutes, MAX_WORK_LOG_HOURS } from "@/shared/validations/work-log";
 import styles from "./WorkLogForm.module.css";
+import { useWorkLogFieldSync } from "../hooks/useWorkLogFieldSync";
+import { useWorkLogLiveDuration } from "../hooks/useWorkLogLiveDuration";
 
 interface WorkLogFormProps {
   currentProfile: Profile;
@@ -25,23 +26,6 @@ interface WorkLogFormProps {
   onCancel?: () => void;
   onFormStateChange?: (state: { isDirty: boolean; isPending: boolean }) => void;
 }
-
-const TRACKED_FIELD_NAMES = [
-  "developer_name",
-  "date",
-  "start_time",
-  "end_time",
-  "task_title",
-  "description",
-] as const;
-
-const getFormSnapshot = (form: HTMLFormElement) => {
-  const formData = new FormData(form);
-
-  return JSON.stringify(
-    TRACKED_FIELD_NAMES.map((fieldName) => [fieldName, String(formData.get(fieldName) ?? "")])
-  );
-};
 
 const formatTimeForInput = (timeStr?: string | null) => {
   if (!timeStr) return "";
@@ -81,59 +65,27 @@ export default function WorkLogForm({
   const defaultDescription = state.values?.description ?? initialValues.description ?? "";
   const defaultDevName = state.values?.developer_name ?? workLogDeveloperName ?? currentProfile.developer_name ?? "";
 
-  const [dateValue, setDateValue] = useState(defaultDate);
-  const [startTimeVal, setStartTimeVal] = useState(defaultStartTime);
-  const [endTimeVal, setEndTimeVal] = useState(defaultEndTime);
-  const [isDirty, setIsDirty] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-  const initialFormSnapshotRef = useRef<string | null>(null);
+  const {
+    dateValue,
+    startTimeVal,
+    endTimeVal,
+    setDateValue,
+    setStartTimeVal,
+    setEndTimeVal,
+    isDirty,
+    formRef,
+    handleFormChange
+  } = useWorkLogFieldSync({
+    defaultDate,
+    defaultStartTime,
+    defaultEndTime
+  });
 
-  // Sincronizar estados locales usando useEffect para evitar setStates en render
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDateValue(defaultDate);
-  }, [defaultDate]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setStartTimeVal(defaultStartTime);
-  }, [defaultStartTime]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setEndTimeVal(defaultEndTime);
-  }, [defaultEndTime]);
-
-  useEffect(() => {
-    if (!formRef.current) return;
-
-    initialFormSnapshotRef.current = getFormSnapshot(formRef.current);
-  }, []);
+  const { liveDuration, liveError } = useWorkLogLiveDuration(startTimeVal, endTimeVal);
 
   useEffect(() => {
     onFormStateChange?.({ isDirty, isPending });
   }, [isDirty, isPending, onFormStateChange]);
-
-  // Cálculos de duración y advertencias en vivo
-  const normStart = normalizeTime(startTimeVal);
-  const normEnd = normalizeTime(endTimeVal);
-
-  let liveDuration: number | null = null;
-  let liveError: string | null = null;
-
-  if (normStart && normEnd) {
-    const startMin = parseTimeToMinutes(normStart);
-    const endMin = parseTimeToMinutes(normEnd);
-
-    if (endMin <= startMin) {
-      liveError = "La hora de fin debe ser posterior a la hora de inicio.";
-    } else {
-      liveDuration = calculateDurationHours(normStart, normEnd);
-      if (liveDuration > MAX_WORK_LOG_HOURS) {
-        liveError = "Un registro no puede superar las 12 horas.";
-      }
-    }
-  }
 
   const datePickerRef = useRef<HTMLInputElement>(null);
 
@@ -143,12 +95,6 @@ export default function WorkLogForm({
     } catch {
       // Fallback
     }
-  };
-
-  const handleFormChange = () => {
-    if (!formRef.current || initialFormSnapshotRef.current === null) return;
-
-    setIsDirty(getFormSnapshot(formRef.current) !== initialFormSnapshotRef.current);
   };
 
   return (
