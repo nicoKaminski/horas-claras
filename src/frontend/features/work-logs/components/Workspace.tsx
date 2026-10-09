@@ -55,6 +55,9 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
     setSelectedJira,
     selectedDeveloper,
     setSelectedDeveloper,
+    selectedTask,
+    setSelectedTask,
+    availableTasks,
     selectedFrom,
     setSelectedFrom,
     selectedTo,
@@ -192,6 +195,22 @@ export default function Workspace({ logs, currentProfile, initialMonth, initialY
             >
               {years.map((y) => (
                 <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Tarea */}
+          <div className={styles.filterGroup}>
+            <label htmlFor="workspace-task" className={styles.label}>Tarea</label>
+            <select
+              id="workspace-task"
+              value={selectedTask}
+              onChange={(e) => setSelectedTask(e.target.value)}
+              className={styles.select}
+            >
+              <option value="todas">Todas</option>
+              {availableTasks.map((task) => (
+                <option key={task} value={task}>{task}</option>
               ))}
             </select>
           </div>

@@ -92,9 +92,10 @@ export async function getWorkLogs(filters?: WorkLogsFilters): Promise<WorkLogsFe
       query = query.gte("date", startStr).lte("date", endStr);
     }
 
-    // Ordenar por fecha desc y luego created_at desc
+    // Ordenar por fecha desc, horario (start_time) desc y luego created_at desc
     query = query
       .order("date", { ascending: false })
+      .order("start_time", { ascending: false })
       .order("created_at", { ascending: false });
 
     const { data, error } = await query;
