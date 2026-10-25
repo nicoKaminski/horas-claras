@@ -166,7 +166,7 @@ Detalle en [docs/setup-local.md](./docs/setup-local.md) y [docs/supabase.md](./d
 
 ## Contacto
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-w?logo=inspire&logoColor=white&labelColor=007AB5&color=007AB5)](https://www.linkedin.com/in/nkaminski-profile/) [![Email](https://img.shields.io/badge/eMail-w?logo=gmail&logoColor=white&labelColor=%23EA4335&color=%23EA4335)](mailto:nicokaminski89@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-w?logo=inspire&logoColor=white&labelColor=007AB5&color=007AB5)](https://www.linkedin.com/in/nkaminski-profile/) [![Email](https://img.shields.io/badge/eMail-w?logo=gmail&logoColor=white&labelColor=%23EA4335&color=%23EA4335)](mailto:nicokaminski89@gmail.com) [Sitio web](https://nicokaminski.com/)
 
 ## Licencia
 
