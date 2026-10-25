@@ -13,11 +13,15 @@ El agente debe actuar como ejecutor técnico controlado dentro del repositorio d
 Debe:
 
 - leer primero las instrucciones del proyecto;
-- revisar el estado real del repo;
+- confirmar el repositorio, la rama, los cambios locales y los archivos reales antes de editar;
 - trabajar con alcance mínimo;
 - modificar solo lo necesario;
 - no inventar contratos ni arquitectura;
 - reportar claramente qué hizo y qué no pudo validar.
+
+`dev` es la rama habitual, no una obligación para todas las tareas. Respetar la rama indicada en cada prompt y no cambiar de rama. `main` requiere un pull request desde cualquier rama. `AGENTS.md` sigue siendo la entrada obligatoria y define las reglas raíz.
+
+Cuando el trabajo se pueda separar sin compartir archivos de escritura, delegar responsabilidades en subagentes, asignarles alcances exclusivos y auditar el resultado integrado.
 
 ---
 
@@ -66,6 +70,8 @@ Prohibido:
 
 Si una modificación fuera de alcance parece necesaria, debe reportarla antes de hacerla.
 
+No agregar, quitar ni actualizar dependencias sin autorización. No hacer refactors amplios o cambios de comportamiento que no estén en el alcance aprobado.
+
 ---
 
 ## 4. Honestidad técnica
@@ -88,6 +94,8 @@ No debe suavizar ni ocultar problemas para dar una respuesta más agradable.
 
 ## 5. Seguridad y datos sensibles
 
+Tratar todos los archivos versionados como contenido público. No incorporar secretos, tokens, contraseñas, cookies, claves privadas o credenciales de servicios. Tampoco incluir datos reales de trabajo, usuarios, registros de horas, tarifas, tickets o información interna. Solo se admiten las identidades ficticias `dev` y `compa`.
+
 Prohibido:
 
 - subir secretos;
@@ -95,17 +103,13 @@ Prohibido:
 - crear `.env.local` con valores reales;
 - copiar claves reales en documentación;
 - usar service role key en frontend;
+- exponer claves `service_role` o equivalentes en el navegador;
 - guardar passwords propias si se usa Supabase Auth;
 - crear seeds con datos personales reales;
 - usar nombres reales de personas en código, documentación, mocks o UI.
+- incluir información privada en logs, errores, capturas o documentación.
 
-Permitido:
-
-- `dev`;
-- `compa`;
-- `dev@example.com`;
-- `compa@example.com`;
-- placeholders explícitos y no sensibles.
+Mantener separadas las variables públicas de Supabase con prefijo `NEXT_PUBLIC_` y las credenciales privadas de servidor. Mantener `.env.example` versionado y sin secretos; no cambiar `.gitignore` si ya protege los archivos reales de entorno y permite ese ejemplo.
 
 ---
 
@@ -131,6 +135,8 @@ Antes de tocar Supabase, revisar:
 - separación entre cliente browser y server.
 
 Las funciones `security definer` deben declarar `search_path`.
+
+Antes de cerrar tareas relacionadas, revisar seguridad y privacidad. Las acciones sensibles deben contar con autenticación y autorización real en Supabase/RLS; la interfaz por sí sola no es suficiente.
 
 ---
 
@@ -211,7 +217,7 @@ Antes de proponer una dependencia, justificar:
 
 ## 11. Comandos
 
-El agente no puede ejecutar comandos sin autorización explícita del developer.
+El agente no puede ejecutar comandos sin autorización explícita del developer. Se permite inspección Git de solo lectura si la tarea lo autoriza.
 
 Prohibido siempre:
 
@@ -219,11 +225,19 @@ Prohibido siempre:
 git add
 git commit
 git push
-git rebase
+git pull
+git fetch
 git merge
-git reset --hard
+git rebase
+git reset
+git checkout
+git switch
+git restore
+git stash
 git clean
 ```
+
+También se prohíben equivalentes y cualquier operación que cambie el índice, árbol de trabajo, referencias o estado remoto. No instalar, eliminar ni actualizar dependencias y no ejecutar comandos destructivos.
 
 Si necesita validar, debe:
 
@@ -231,6 +245,8 @@ Si necesita validar, debe:
 2. sugerir comandos existentes;
 3. esperar autorización si el contexto de trabajo lo exige;
 4. reportar el resultado real si los ejecuta.
+
+Los scripts disponibles deben confirmarse en `package.json`; cuando exista, incluir `npm run typecheck` junto con lint y build.
 
 ---
 

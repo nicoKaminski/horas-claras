@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
 import { WorkLog } from "@/shared/types/work-log";
 import { Profile } from "@/shared/types/profile";
 import { normalizeDate } from "@/shared/validations/work-log";
@@ -31,12 +31,15 @@ export function useWorkLogFilters({ logs, currentProfile }: UseWorkLogFiltersPro
     );
   }, [logs]);
 
+  const [previousAvailableTasks, setPreviousAvailableTasks] = useState(availableTasks);
+
   // Si cambia el período o la tarea seleccionada ya no existe en el mes actual, resetear a "todas"
-  useEffect(() => {
+  if (previousAvailableTasks !== availableTasks) {
+    setPreviousAvailableTasks(availableTasks);
     if (selectedTask !== "todas" && !availableTasks.includes(selectedTask)) {
       setSelectedTask("todas");
     }
-  }, [availableTasks, selectedTask]);
+  }
 
   // Refs and click handlers for date pickers
   const fromDatePickerRef = useRef<HTMLInputElement>(null);

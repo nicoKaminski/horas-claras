@@ -23,6 +23,10 @@ Antes de editar cualquier archivo, el agente debe leer:
 4. Solo los archivos relacionados con la tarea
 5. Si aplica, los documentos de `agent/`
 
+Antes de editar, confirmar que el repositorio es `nicoKaminski/horas-claras`, revisar la rama actual y los cambios locales, y leer los archivos reales relacionados. No cambiar de rama. `dev` es la rama habitual, pero cada tarea debe respetar la rama indicada explícitamente; si no coincide o hay un conflicto que pueda afectar cambios previos, detenerse y reportarlo.
+
+La rama `main` requiere un pull request para integrar cambios desde cualquier rama. Esta regla no autoriza operaciones remotas ni de escritura sobre GitHub.
+
 Documentos auxiliares:
 
 ```txt
@@ -48,9 +52,11 @@ Skill recomendado para UI:
 - Si una decisión funcional o técnica no está cerrada, frenar y consultar.
 - Actuar con honestidad técnica: marcar riesgos, inconsistencias o enfoques débiles aunque contradigan una idea inicial.
 - Priorizar cambios chicos, trazables y fáciles de revisar.
+- Limitarse a cambios mínimos: no hacer refactors, cambios de comportamiento ni agregar, quitar o actualizar dependencias sin autorización explícita.
 - No hacer refactors amplios si la tarea no los pide.
 - No tocar archivos fuera del alcance salvo que sea imprescindible. Si hace falta, explicarlo antes.
 - No usar nombres reales de personas. Usar siempre `dev` y `compa`.
+- Si las responsabilidades son separables, delegar el trabajo en subagentes con archivos de escritura exclusivos y revisar el resultado integrado antes de cerrar.
 
 ---
 
@@ -305,6 +311,8 @@ RLS:
 
 ## 10. Variables de entorno y secretos
 
+Todo archivo versionado debe tratarse como contenido público. No incorporar secretos, tokens, contraseñas, cookies, claves privadas, credenciales de servicios ni datos reales de trabajo, usuarios, registros de horas, tarifas, tickets o información interna. En ejemplos y documentación solo se admiten las identidades ficticias `dev` y `compa`.
+
 No crear ni modificar `.env.local` con valores reales salvo instrucción explícita del developer.
 
 Permitido crear `.env.example` sin secretos.
@@ -321,6 +329,10 @@ Reglas:
 - Nunca imprimir secretos en logs.
 - Nunca subir service role key.
 - Nunca copiar claves reales en README o docs.
+- Mantener separadas las variables públicas de Supabase (`NEXT_PUBLIC_*`) y cualquier credencial privada usada solo en servidor. No exponer claves `service_role` ni equivalentes en el navegador.
+- Las operaciones sensibles deben validar identidad y permisos reales con Supabase y RLS; no confiar solo en controles de interfaz.
+- Evitar información privada en logs, mensajes de error, capturas y documentación.
+- Mantener `.env.example` versionado y sin secretos. No modificar `.gitignore` si ya excluye los archivos de entorno reales y permite `.env.example`.
 - Si se necesita una variable nueva, documentarla en `.env.example` y README/docs.
 - Si `.gitignore` ignora `.env*`, asegurar que `.env.example` quede permitido con `!.env.example`.
 
@@ -328,7 +340,7 @@ Reglas:
 
 ## 11. Comandos y validaciones
 
-El agente no puede ejecutar comandos sin autorización explícita del developer.
+El agente no puede ejecutar comandos sin autorización explícita del developer. Se permite inspección Git de solo lectura cuando la tarea lo autorice y se respeten sus restricciones.
 
 Esto incluye:
 
@@ -341,17 +353,25 @@ Esto incluye:
 - comandos de testing;
 - comandos de formateo.
 
-Comandos de Git prohibidos siempre:
+Están prohibidas las operaciones Git que escriben o cambian el repositorio, incluyendo:
 
 ```bash
 git add
 git commit
 git push
-git rebase
+git pull
+git fetch
 git merge
-git reset --hard
+git rebase
+git reset
+git checkout
+git switch
+git restore
+git stash
 git clean
 ```
+
+También están prohibidos sus equivalentes o cualquier comando que modifique el índice, el árbol de trabajo, referencias o estado remoto. No instalar, eliminar ni actualizar dependencias; no ejecutar comandos destructivos.
 
 Si conviene validar, sugerir solo comandos que existan en `package.json`.
 
@@ -359,11 +379,12 @@ Actualmente, validar contra `package.json` antes de sugerir:
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
 npm run dev
 ```
 
-No inventar `npm run typecheck` si no existe script.
+Confirmar siempre en `package.json` qué scripts existen antes de sugerirlos o ejecutarlos. Ejecutar validaciones solo con autorización explícita.
 
 El agente no debe decir que una tarea quedó técnicamente cerrada si no se ejecutaron o no fueron reportadas las validaciones necesarias.
 
@@ -411,6 +432,8 @@ Toda documentación debe:
 ---
 
 ## 13. Cierre obligatorio de tarea
+
+Antes de cerrar, hacer una revisión de seguridad y privacidad cuando la tarea toque código, configuración o documentación que pueda afectar datos, credenciales, permisos, logs o archivos versionados.
 
 Al finalizar una tarea, el agente debe reportar:
 
