@@ -16,12 +16,12 @@ El agente local debe ejecutar tareas chicas, controladas y auditables dentro del
 
 Todo prompt para agente local debe indicar:
 
-1. Repositorio objetivo.
-2. Alcance exacto.
-3. Archivos o carpetas que debe leer antes de editar.
-4. Qué puede modificar.
-5. Qué no puede modificar.
-6. Validaciones esperadas.
+1. Repositorio objetivo y rama de trabajo requerida. `dev` es habitual, pero no reemplaza la rama indicada por la tarea.
+2. Objetivo, alcance exacto y plan cerrado de implementación o diagnóstico.
+3. Archivos o carpetas que debe leer antes de editar, incluyendo `AGENTS.md` y `package.json`.
+4. Qué archivos puede modificar y qué queda expresamente fuera de alcance.
+5. Restricciones de comandos, dependencias, datos y servicios externos.
+6. Validaciones esperadas y cuáles requieren autorización para ejecutarse.
 7. Formato obligatorio de entrega.
 
 ---
@@ -31,10 +31,17 @@ Todo prompt para agente local debe indicar:
 Usar esta plantilla como base y adaptarla a cada tarea.
 
 ```md
-Trabajá en el repositorio Horas Claras.
+Trabajá en el repositorio `nicoKaminski/horas-claras`.
+
+Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales antes de editar. No cambies de rama. `dev` es la rama habitual si la tarea no indica otra; `main` requiere pull request desde cualquier rama.
 
 Objetivo:
 [DESCRIBIR OBJETIVO CONCRETO]
+
+Plan cerrado:
+1. [PASO CONCRETO]
+2. [PASO CONCRETO]
+No ampliar ni reemplazar este plan. Si aparece un bloqueo o una necesidad fuera del alcance, reportarlo sin implementarla.
 
 Alcance:
 - Modificar solo los archivos necesarios para esta tarea.
@@ -44,6 +51,7 @@ Alcance:
 - No modificar contratos no relacionados.
 - No crear mocks productivos.
 - No usar nombres reales de personas.
+- Tratar todos los archivos versionados como públicos: no incluir secretos, credenciales ni datos reales o internos.
 - No tocar archivos fuera del alcance salvo que sea estrictamente necesario y lo informes.
 
 Lectura previa obligatoria:
@@ -65,8 +73,9 @@ Reglas técnicas:
 - Si falta contexto, frená y reportalo.
 
 Restricciones de comandos:
-- No ejecutes comandos de versionado.
-- No uses `git add`, `git commit`, `git push`, `git rebase`, `git merge`, `git reset --hard` ni `git clean`.
+- Solo se permite inspección Git de lectura cuando la tarea lo autorice.
+- No uses operaciones que escriban o cambien el repositorio: `git add`, `commit`, `push`, `pull`, `fetch`, `merge`, `rebase`, `reset`, `checkout`, `switch`, `restore`, `stash`, `clean` ni equivalentes.
+- No instales, elimines ni actualices dependencias; no ejecutes comandos destructivos.
 - No ejecutes comandos de instalación, build, lint, dev o tests salvo autorización explícita del developer.
 - Si sugerís comandos, usá solo scripts existentes en `package.json`.
 
@@ -80,6 +89,7 @@ Al finalizar, reportá:
 - Qué no se tocó.
 - Validaciones ejecutadas.
 - Validaciones pendientes.
+- Revisión de seguridad y privacidad realizada cuando corresponda.
 - Riesgos o dudas.
 - Cambios de contrato, si hubo.
 - Próximo paso recomendado.
@@ -93,12 +103,18 @@ No declares “listo”, “resuelto” o “sin errores” si no pudiste valida
 Usar cuando se necesita auditoría.
 
 ```md
-Trabajá en el repositorio Horas Claras.
+Trabajá en el repositorio `nicoKaminski/horas-claras`.
+
+Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales. No cambies de rama.
 
 Modo: diagnóstico solamente.
 
 Objetivo:
 [DESCRIBIR QUÉ SE QUIERE AUDITAR]
+
+Plan cerrado:
+1. Revisar únicamente los archivos relevantes para el diagnóstico.
+2. Informar hallazgos y límites de verificación sin implementar cambios.
 
 Instrucciones:
 - Leé `AGENTS.md`.
@@ -109,6 +125,7 @@ Instrucciones:
 - No crees archivos.
 - No ejecutes comandos salvo autorización explícita.
 - No hagas commits ni acciones de versionado.
+- Tratá archivos versionados como públicos; no imprimas ni documentes secretos o datos internos.
 
 Entrega:
 - Estado observado.
@@ -125,7 +142,9 @@ Entrega:
 Usar cuando el developer ya decidió avanzar.
 
 ```md
-Trabajá en el repositorio Horas Claras.
+Trabajá en el repositorio `nicoKaminski/horas-claras`.
+
+Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales antes de editar. No cambies de rama.
 
 Modo: implementación controlada.
 
@@ -150,7 +169,8 @@ Restricciones:
 - No cambiar contratos no pedidos.
 - No inventar helpers ni tipos.
 - No usar `any` ni `as any`.
-- No ejecutar comandos de versionado.
+- No usar operaciones Git que escriban o cambien el repositorio (`add`, `commit`, `push`, `pull`, `fetch`, `merge`, `rebase`, `reset`, `checkout`, `switch`, `restore`, `stash`, `clean` ni equivalentes).
+- No instalar, eliminar ni actualizar dependencias ni ejecutar comandos destructivos.
 - No declarar éxito sin revisión final.
 
 Validación:
@@ -171,12 +191,19 @@ Entrega final obligatoria:
 Usar cuando la tarea toca UI.
 
 ```md
-Trabajá en el repositorio Horas Claras.
+Trabajá en el repositorio `nicoKaminski/horas-claras`.
+
+Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales. No cambies de rama.
 
 Modo: implementación frontend controlada.
 
 Objetivo:
 [DESCRIBIR CAMBIO VISUAL/FUNCIONAL]
+
+Plan cerrado:
+1. [PASO CONCRETO]
+2. [PASO CONCRETO]
+No ampliar el alcance sin informarlo.
 
 Lectura previa:
 - `AGENTS.md`
@@ -210,12 +237,19 @@ Entrega:
 Usar cuando la tarea toca base, auth, RLS o migraciones.
 
 ```md
-Trabajá en el repositorio Horas Claras.
+Trabajá en el repositorio `nicoKaminski/horas-claras`.
+
+Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales antes de editar. No cambies de rama.
 
 Modo: Supabase / seguridad.
 
 Objetivo:
 [DESCRIBIR CAMBIO]
+
+Plan cerrado:
+1. [PASO CONCRETO]
+2. [PASO CONCRETO]
+No ampliar el alcance. Si falta contexto o se necesita una acción fuera del plan, reportarlo antes de implementarla.
 
 Lectura previa:
 - `AGENTS.md`
@@ -275,6 +309,9 @@ Riesgos o dudas:
 
 Cambios de contrato:
 - Ninguno / Detalle
+
+Revisión de seguridad y privacidad:
+- Realizada cuando corresponda, con hallazgos o riesgos pendientes explícitos.
 
 Próximo paso recomendado:
 - ...

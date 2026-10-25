@@ -224,7 +224,7 @@ Estado real observado en el repo:
 - `src/frontend/styles/` existe pero está vacío. Los estilos viven en los CSS Modules junto a cada componente.
 - `src/shared/utils/` existe pero está vacío.
 - `supabase/seed.sql` existe como placeholder sin datos reales.
-- No existe script `npm run typecheck` en `package.json`. Los scripts disponibles son: `dev`, `build`, `start`, `lint`.
+- Scripts de calidad disponibles: `lint`, `typecheck` y `build`; los scripts de ejecución son `dev` y `start`.
 - El diseño usa Geist Sans y Geist Mono vía `next/font/google`.
 - `react-icons` está instalado como dependencia (versión 5.x).
 - El tema `night` (modo oscuro) usa el valor `night` en `localStorage` y `data-theme`, no `dark`.

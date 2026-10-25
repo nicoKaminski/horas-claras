@@ -137,9 +137,8 @@ npm run dev
 npm run build
 npm run start
 npm run lint
+npm run typecheck
 ```
-
-No hay script `npm run typecheck` definido por ahora.
 
 ## Variables de entorno
 
