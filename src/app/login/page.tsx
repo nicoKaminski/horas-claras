@@ -61,7 +61,7 @@ export default async function LoginPage() {
               ·
             </span>
             <a
-              href="https://nicokaminski.vercel.app/"
+              href="https://nicokaminski.com/"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.visitorLink}
