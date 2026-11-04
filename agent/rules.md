@@ -19,7 +19,7 @@ Debe:
 - no inventar contratos ni arquitectura;
 - reportar claramente qué hizo y qué no pudo validar.
 
-`dev` es la rama habitual, no una obligación para todas las tareas. Respetar la rama indicada en cada prompt y no cambiar de rama. `main` requiere un pull request desde cualquier rama. `AGENTS.md` sigue siendo la entrada obligatoria y define las reglas raíz.
+El flujo normal es `rama de trabajo → Pull Request → main`. `main` es la rama protegida de integración y recibe mediante Pull Request todo cambio destinado a producción; los agentes no implementan directamente sobre `main`. La rama habitual de trabajo es `dev`; usar otra rama distinta de `main` solo si el developer lo indica explícitamente. Si un prompt de implementación señala `main` como rama de trabajo, detenerse y reportar el conflicto sin modificar código. El agente no cambia de rama por su cuenta. El developer controla ramas, commits, push, Pull Requests y merge; siguen prohibidas para los agentes las operaciones Git de escritura indicadas en `AGENTS.md`. `AGENTS.md` sigue siendo la entrada obligatoria y define las reglas raíz.
 
 Cuando el trabajo se pueda separar sin compartir archivos de escritura, delegar responsabilidades en subagentes, asignarles alcances exclusivos y auditar el resultado integrado.
 

@@ -1,0 +1,39 @@
+name: Proponer una mejora
+description: Compartí un problema o una idea para mejorar Horas Claras.
+title: "[Propuesta]: "
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        No incluyas datos privados o sensibles, como credenciales, tokens, cookies o datos laborales reales.
+        Las propuestas sirven para iniciar una conversación y no implican que el cambio vaya a ser aceptado.
+        Si se trata de un problema de seguridad, no abras un Issue público: seguí las instrucciones de
+        [SECURITY.md](https://github.com/nicoKaminski/horas-claras/blob/main/SECURITY.md).
+  - type: textarea
+    id: need
+    attributes:
+      label: Problema o necesidad
+      description: ¿Qué problema querés resolver o qué necesidad tenés?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+      description: ¿Qué mejora sugerís?
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Beneficio esperado
+      description: ¿Cómo ayudaría esta mejora?
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Información adicional (opcional)
+      description: Agregá contexto útil sin incluir información privada o sensible.
+    validations:
+      required: false
