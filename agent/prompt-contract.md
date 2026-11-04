@@ -16,7 +16,7 @@ El agente local debe ejecutar tareas chicas, controladas y auditables dentro del
 
 Todo prompt para agente local debe indicar:
 
-1. Repositorio objetivo y rama de trabajo requerida. `dev` es habitual, pero no reemplaza la rama indicada por la tarea.
+1. Repositorio objetivo y rama de trabajo requerida. El flujo normal es `rama de trabajo → Pull Request → main`; `main` es la rama protegida de integración, no se usa para implementar y recibe mediante Pull Request todo cambio destinado a producción. `dev` es la rama habitual; otra rama de trabajo solo puede indicarse explícitamente y debe ser distinta de `main`. Si un prompt de implementación indica `main`, el agente debe detenerse y reportar el conflicto sin modificar código. El agente no cambia de rama por su cuenta. El developer controla ramas, commits, push, Pull Requests y merge; los agentes mantienen prohibidas las operaciones Git de escritura establecidas en `AGENTS.md`.
 2. Objetivo, alcance exacto y plan cerrado de implementación o diagnóstico.
 3. Archivos o carpetas que debe leer antes de editar, incluyendo `AGENTS.md` y `package.json`.
 4. Qué archivos puede modificar y qué queda expresamente fuera de alcance.
@@ -33,7 +33,7 @@ Usar esta plantilla como base y adaptarla a cada tarea.
 ```md
 Trabajá en el repositorio `nicoKaminski/horas-claras`.
 
-Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales antes de editar. No cambies de rama. `dev` es la rama habitual si la tarea no indica otra; `main` requiere pull request desde cualquier rama.
+Rama requerida: [RAMA DE TRABAJO, DISTINTA DE main]. Confirmá el repositorio, la rama y los cambios locales antes de editar. Usá `dev` salvo que el developer indique explícitamente otra rama de trabajo distinta de `main`. No cambies de rama. Si este prompt de implementación indica `main`, detenete y reportá el conflicto sin modificar código. El flujo normal es `rama de trabajo → Pull Request → main`.
 
 Objetivo:
 [DESCRIBIR OBJETIVO CONCRETO]
@@ -105,7 +105,7 @@ Usar cuando se necesita auditoría.
 ```md
 Trabajá en el repositorio `nicoKaminski/horas-claras`.
 
-Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales. No cambies de rama.
+Rama requerida: [RAMA DE TRABAJO, DISTINTA DE main]. Confirmá el repositorio, la rama y los cambios locales. Usá `dev` salvo que el developer indique explícitamente otra rama de trabajo distinta de `main`. No cambies de rama.
 
 Modo: diagnóstico solamente.
 
@@ -144,7 +144,7 @@ Usar cuando el developer ya decidió avanzar.
 ```md
 Trabajá en el repositorio `nicoKaminski/horas-claras`.
 
-Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales antes de editar. No cambies de rama.
+Rama requerida: [RAMA DE TRABAJO, DISTINTA DE main]. Confirmá el repositorio, la rama y los cambios locales antes de editar. Usá `dev` salvo que el developer indique explícitamente otra rama de trabajo distinta de `main`. No cambies de rama. Si este prompt de implementación indica `main`, detenete y reportá el conflicto sin modificar código.
 
 Modo: implementación controlada.
 
@@ -193,7 +193,7 @@ Usar cuando la tarea toca UI.
 ```md
 Trabajá en el repositorio `nicoKaminski/horas-claras`.
 
-Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales. No cambies de rama.
+Rama requerida: [RAMA DE TRABAJO, DISTINTA DE main]. Confirmá el repositorio, la rama y los cambios locales. Usá `dev` salvo que el developer indique explícitamente otra rama de trabajo distinta de `main`. No cambies de rama. Si este prompt de implementación indica `main`, detenete y reportá el conflicto sin modificar código.
 
 Modo: implementación frontend controlada.
 
@@ -239,7 +239,7 @@ Usar cuando la tarea toca base, auth, RLS o migraciones.
 ```md
 Trabajá en el repositorio `nicoKaminski/horas-claras`.
 
-Rama requerida: [RAMA]. Confirmá el repositorio, la rama y los cambios locales antes de editar. No cambies de rama.
+Rama requerida: [RAMA DE TRABAJO, DISTINTA DE main]. Confirmá el repositorio, la rama y los cambios locales antes de editar. Usá `dev` salvo que el developer indique explícitamente otra rama de trabajo distinta de `main`. No cambies de rama. Si este prompt de implementación indica `main`, detenete y reportá el conflicto sin modificar código.
 
 Modo: Supabase / seguridad.
 

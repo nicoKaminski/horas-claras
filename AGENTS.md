@@ -23,9 +23,9 @@ Antes de editar cualquier archivo, el agente debe leer:
 4. Solo los archivos relacionados con la tarea
 5. Si aplica, los documentos de `agent/`
 
-Antes de editar, confirmar que el repositorio es `nicoKaminski/horas-claras`, revisar la rama actual y los cambios locales, y leer los archivos reales relacionados. No cambiar de rama. `dev` es la rama habitual, pero cada tarea debe respetar la rama indicada explícitamente; si no coincide o hay un conflicto que pueda afectar cambios previos, detenerse y reportarlo.
+Antes de editar, confirmar que el repositorio es `nicoKaminski/horas-claras`, revisar la rama actual y los cambios locales, y leer los archivos reales relacionados. Si la rama actual no coincide con la rama de trabajo indicada o hay cambios locales que puedan entrar en conflicto, detenerse y reportarlo. No cambiar de rama.
 
-La rama `main` requiere un pull request para integrar cambios desde cualquier rama. Esta regla no autoriza operaciones remotas ni de escritura sobre GitHub.
+El flujo normal es `rama de trabajo → Pull Request → main`. `main` es la rama protegida de integración: los agentes no deben implementar cambios directamente sobre ella y todo cambio destinado a producción debe llegar mediante Pull Request. `dev` es la rama habitual; solo se usa otra rama de trabajo distinta de `main` cuando el developer lo indica explícitamente. Si un prompt de implementación indica `main` como rama de trabajo, detenerse y reportar el conflicto sin modificar código. El developer controla las ramas, commits, push, Pull Requests y merge. Los agentes no deben cambiar de rama por su cuenta y tienen prohibidas las operaciones Git de escritura descritas en la sección 11. Esta regla no autoriza operaciones remotas ni de escritura sobre GitHub.
 
 Documentos auxiliares:
 

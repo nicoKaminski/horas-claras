@@ -1,0 +1,59 @@
+name: Reportar un error
+description: Informá un comportamiento inesperado de Horas Claras.
+title: "[Error]: "
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        **No publiques credenciales, tokens, datos laborales reales, información privada
+        ni detalles de vulnerabilidades de seguridad.** Horas Claras usa autenticación,
+        Supabase y datos privados. Para problemas de seguridad, seguí las instrucciones
+        de [SECURITY.md](https://github.com/nicoKaminski/horas-claras/blob/main/SECURITY.md) y no abras un Issue público.
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción
+      description: ¿Qué error encontraste?
+      placeholder: Contá qué ocurrió, sin incluir datos privados.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Incluí pasos seguros que no creen, cambien ni eliminen datos reales.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+      description: ¿Qué esperabas que pasara?
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Comportamiento observado
+      description: ¿Qué pasó en su lugar? No incluyas datos privados ni secretos.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno relevante
+      description: Indicá solo datos útiles, como navegador, sistema operativo o si ocurre en local.
+      placeholder: Navegador y versión, sistema operativo, entorno local u otro dato relevante.
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencia visual (opcional)
+      description: Adjuntá una captura solo si ayuda. Antes, ocultá cualquier dato privado o sensible.
+    validations:
+      required: false
