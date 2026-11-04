@@ -20,7 +20,7 @@ Configurar en Vercel las variables publicas necesarias:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 No configurar una clave `service_role` para uso de frontend.
@@ -43,12 +43,12 @@ Despues de modificar variables de entorno en Vercel, hacer un redeploy para que 
 
 Antes de considerar listo un deploy publico:
 
-- Variables `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` configuradas.
+- Variables `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` configuradas.
 - No hay secretos privados versionados.
 - Signup publico revisado segun el entorno.
 - Usuarios `dev` y `compa` creados manualmente si el entorno los requiere.
 - Perfiles `dev/admin` y `compa/user` creados manualmente.
-- Migraciones aplicadas en Supabase en orden (`001_initial_schema.sql`, `002_monthly_hourly_rates.sql`).
+- Migraciones aplicadas en Supabase en orden (`001_initial_schema.sql`, `002_monthly_hourly_rates.sql`, `003_work_logs_integrity.sql`, `004_restrict_profile_developer_name.sql`).
 - RLS habilitado y policies verificadas.
 - `npm run build` ejecuta correctamente.
 - Redeploy realizado despues de cambios en variables de entorno.

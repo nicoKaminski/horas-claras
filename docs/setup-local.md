@@ -25,7 +25,7 @@ Completar en `.env.local` las variables publicas de Supabase:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 No agregar claves privadas, tokens, passwords ni `service_role` al frontend. `.env.local` no debe versionarse.
@@ -52,10 +52,14 @@ Ejecutar lint:
 npm run lint
 ```
 
+Ejecutar typecheck:
+
+```bash
+npm run typecheck
+```
+
 Ejecutar build:
 
 ```bash
 npm run build
 ```
-
-Por ahora no se documenta `npm run typecheck` como comando disponible. Si mas adelante se agrega un script especifico de typecheck, debe actualizarse esta guia.
