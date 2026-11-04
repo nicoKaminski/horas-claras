@@ -104,7 +104,7 @@ horas-claras/
 │   ├── backend/        Logica server-side y helpers seguros
 │   └── shared/         Tipos, constantes y utilidades compartidas
 ├── supabase/
-│   ├── migrations/     Migraciones SQL versionadas (001, 002)
+│   ├── migrations/     Migraciones SQL versionadas (001, 002, 003, 004)
 │   └── seed.sql        Seed o notas sin datos sensibles
 ├── docs/               Documentacion detallada del proyecto
 ├── agent/              Documentacion auxiliar para agentes
@@ -146,7 +146,7 @@ Variables publicas esperadas para conectar con Supabase:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 No subir `.env.local`, secretos, tokens, passwords ni claves `service_role`.

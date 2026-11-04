@@ -37,10 +37,12 @@ Las migraciones viven en:
 ```txt
 supabase/migrations/
 ├─ 001_initial_schema.sql
-└─ 002_monthly_hourly_rates.sql
+├─ 002_monthly_hourly_rates.sql
+├─ 003_work_logs_integrity.sql
+└─ 004_restrict_profile_developer_name.sql
 ```
 
-Ambas deben aplicarse manualmente en Supabase, en orden.
+Las cuatro migraciones deben aplicarse manualmente en Supabase, en orden.
 
 ### 001_initial_schema.sql
 
@@ -63,6 +65,14 @@ Agrega soporte de tarifas mensuales por desarrollador. Incluye:
 - trigger de `updated_at` (reutiliza `set_updated_at` de la migración 001)
 - RLS habilitado y policies de select para admin y usuario propio, insert y update solo para admin
 - grants: solo `SELECT`, `INSERT` y `UPDATE` para `authenticated`; `DELETE` no permitido
+
+### 003_work_logs_integrity.sql
+
+Agrega restricciones y un trigger de integridad para `work_logs`. Requiere hora de fin, limita cada registro a 12 horas, valida que la duración coincida con el intervalo horario, evita solapamientos para el mismo usuario y fecha, y limita el total diario a 20 horas.
+
+### 004_restrict_profile_developer_name.sql
+
+Cambia `get_profile_developer_name(uuid)` a `SECURITY INVOKER`, revoca su ejecución para `PUBLIC` y `anon`, y la concede al rol `authenticated`.
 
 ## Permisos y RLS
 
@@ -88,14 +98,14 @@ Variables publicas esperadas para frontend:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 No subir secretos al repositorio. No usar `service_role` en frontend.
 
 ## Verificacion conceptual
 
-Despues de aplicar ambas migraciones en Supabase, verificar conceptualmente que:
+Despues de aplicar las cuatro migraciones en Supabase, verificar conceptualmente que:
 
 - Existe la tabla `profiles`.
 - Existe la tabla `work_logs`.
